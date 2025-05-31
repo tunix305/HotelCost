@@ -190,7 +190,7 @@ export default {
     },
     async cargarHabitacionesDisponibles() {
       try {
-        const res = await axios.get('https://localhost:7239/api/Habitaciones/EstadosActualizados');
+        const res = await axios.get('https://hotelcost.somee.com/api/Habitaciones/EstadosActualizados');
         this.habitaciones = res.data
           .filter(h => h.estado_Actual.toLowerCase() === 'disponible')
           .map(h => ({ ...h, habitacionDisplay: `#${h.numero_Habitacion} - ${h.tipo_Habitacion}` }));
@@ -209,7 +209,7 @@ export default {
     },
     async cargarHabitacionesOcupadas() {
       try {
-        const res = await axios.get('https://localhost:7239/api/Reservacion/OcupadasConCliente');
+        const res = await axios.get('https://hotelcost.somee.com/api/Reservacion/OcupadasConCliente');
         this.habitacionesOcupadas = res.data;
       } catch (error) {
         console.error('Error al obtener ocupadas:', error);
@@ -217,7 +217,7 @@ export default {
     },
     async cargarClientes() {
       try {
-        const res = await axios.get('https://localhost:7239/api/Clientes');
+        const res = await axios.get('https://hotelcost.somee.com/api/Clientes');
         const ocupadas = this.habitacionesOcupadas.map(r => r.nombreCliente?.toLowerCase());
         this.clientes = res.data
           .map(c => ({ id: c.id, nombreCompleto: `${c.nombre} ${c.apellido}` }))
@@ -253,9 +253,9 @@ export default {
   };
 
   axios
-    .post('https://localhost:7239/api/Reservacion', nuevaReserva)
+    .post('https://hotelcost.somee.com/api/Reservacion', nuevaReserva)
     .then(() => {
-      return axios.put('https://localhost:7239/api/Habitaciones/ActualizarEstado', {
+      return axios.put('https://hotelcost.somee.com/api/Habitaciones/ActualizarEstado', {
         Numero_Habitacion: this.habitacionSeleccionada.numero_Habitacion,
         Estado_Actual: 'Ocupada',
       });

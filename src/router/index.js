@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHashHistory } from "vue-router";
 import LoginView from "../views/LoginView.vue";
 import HomeView from "../views/HomeView.vue";
 import HabitacionesView from "../views/HabitacionesView.vue";
@@ -7,6 +7,7 @@ import InformesView from "@/views/InformesView.vue";
 import ClienteView from "@/views/ClientesView.vue";
 import ResevacionesView from "@/views/ResevacionesView.vue";
 import HistorialHabitacionesView from "@/views/HistorialHabitacionesView.vue";
+
 const routes = [
   { path: "/", name: "Login", component: LoginView },
   { path: "/home", name: "Home", component: HomeView },
@@ -14,20 +15,12 @@ const routes = [
   { path: "/tareas", name: "Tareas", component: TareasView },
   { path: "/informes", name: "Informes", component: InformesView },
   { path: "/historial-habitaciones", name: "Historial", component: HistorialHabitacionesView },
-  {
-    path: "/clientes",
-    name: "Cliente",
-    component: ClienteView,
-  },
-  {
-    path: "/resevaciones",
-    name: "Reservaciones",
-    component: ResevacionesView,
-  },
+  { path: "/clientes", name: "Cliente", component: ClienteView },
+  { path: "/resevaciones", name: "Reservaciones", component: ResevacionesView },
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHashHistory(),
   routes,
 });
 

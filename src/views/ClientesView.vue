@@ -115,7 +115,7 @@
           correo: this.correo,
         };
         try {
-          const { data } = await axios.post('https://localhost:7239/api/Clientes', nuevo);
+          const { data } = await axios.post('https://hotelcost.somee.com/api/Clientes', nuevo);
           this.snackbarMessage = data.message || 'Cliente registrado con éxito';
           this.snackbarColor = 'green';
         } catch {

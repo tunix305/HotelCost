@@ -169,7 +169,7 @@ async function marcarComoHecha(index) {
   const tarea = tareasPendientes.value[index];
 
   try {
-    const response = await axios.delete(`https://localhost:7239/api/Tareas/${tarea.numero_Tarea}`);
+    await axios.delete(`https://hotelcost.somee.com/api/Tareas/${tarea.numero_Tarea}`);
     console.log('✅ Eliminada:', response.data.message);
 
     tareasPendientes.value.splice(index, 1); // Eliminar localmente tras éxito
@@ -207,7 +207,7 @@ onMounted(async () => {
     ['Empleado de Limpieza', 'Supervisor de Mantenimiento', 'Recepcionista','Gerente de Operaciones'].includes(userRole.value)
   ) {
     try {
-      const res = await axios.get(`https://localhost:7239/api/Tareas/pendientes/${user}`);
+      const res = await axios.get(`https://hotelcost.somee.com/api/Tareas/pendientes/${user}`);
       tareasPendientes.value = res.data || [];
     } catch (error) {
       console.warn('❌ Error al obtener tareas pendientes:', error.message);

@@ -117,7 +117,7 @@ export default {
     },
     async obtenerHabitaciones() {
       try {
-        const response = await axios.get('https://localhost:7239/api/Habitaciones/ListaSeleccion');
+        const response = await axios.get('https://hotelcost.somee.com/api/Habitaciones/ListaSeleccion');
         this.rooms = response.data;
       } catch (error) {
         console.error('❌ Error al obtener habitaciones:', error);
@@ -126,7 +126,7 @@ export default {
     },
     async obtenerUsuariosAsignables() {
       try {
-        const response = await axios.get('https://localhost:7239/api/Users/Asignables');
+        const response = await axios.get('https://hotelcost.somee.com/api/Users/Asignables');
         this.asignables = response.data.map(u => ({
           id: u.id,
           nombre: `${u.nombre} (${u.rol})`,
@@ -163,7 +163,7 @@ export default {
       };
 
       try {
-        const response = await axios.post('https://localhost:7239/api/Tareas', nuevaTarea);
+        const response = await axios.post('https://hotelcost.somee.com/api/Tareas', nuevaTarea);
         alert(response.data.message || '✅ Tarea guardada correctamente');
         this.selectedRoom = null;
         this.selectedStatus = null;

@@ -79,9 +79,9 @@
                 </v-col>
                 <v-col cols="12" md="4">
                   <v-textarea
-                    v-model="comentario"
+                  v-model="comentario"
                     label="Comentario"
-                    outlined dense rows="2"
+                    outlined dense rows="1"
                     class="custom-field"
                   />
                 </v-col>

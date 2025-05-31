@@ -116,7 +116,7 @@ export default {
     },
     async cargarHabitaciones() {
       try {
-        const res = await axios.get('https://localhost:7239/api/Habitaciones/EstadosActualizados');
+        const res = await axios.get('https://hotelcost.somee.com/api/Habitaciones/EstadosActualizados');
         this.habitaciones = res.data;
       } catch (err) {
         console.error('❌ Error al cargar habitaciones:', err);
