@@ -1,67 +1,77 @@
+// vue.config.js
+
 const { defineConfig } = require("@vue/cli-service");
 const path = require("path");
 
 module.exports = defineConfig({
+  // Transpila dependencias que puedan contener sintaxis moderna
   transpileDependencies: true,
-  lintOnSave: process.env.NODE_ENV !== 'production', // Lint solo en desarrollo
 
-  // Configuración crítica para GitHub Pages
-  publicPath: process.env.NODE_ENV === 'production'
-    ? '/HotelCost/' // Ruta base en producción (nombre de tu repositorio)
-    : '/', // Ruta base en desarrollo
+  // Solo linting en desarrollo, desactiva en producción
+  lintOnSave: process.env.NODE_ENV !== "production",
 
-  outputDir: 'docs', // Carpeta de salida para GitHub Pages
+  // Ajusta la ruta base según el entorno:
+  // - En producción (GitHub Pages) usará '/HotelCost/'
+  // - En desarrollo usará '/'
+  publicPath:
+    process.env.NODE_ENV === "production" ? "/HotelCost/" : "/",
 
-  // Configuración de assets
-  chainWebpack: config => {
+  // Carpeta de salida para los archivos estáticos (GitHub Pages leerá de "docs/")
+  outputDir: "docs",
+
+  // Modificación de reglas internas de webpack para imágenes
+  chainWebpack: (config) => {
     config.module
-      .rule('images')
+      .rule("images")
       .test(/\.(png|jpe?g|gif|webp)(\?.*)?$/)
-      .use('url-loader')
-      .loader('url-loader')
-      .tap(options => {
-        options.limit = 4096; // Tamaño límite para inline (4KB)
+      .use("url-loader")
+      .loader("url-loader")
+      .tap(function (_options) {
+        // Convierte _options undefined en un objeto vacío
+        const options = _options || {};
+        // Si el archivo es menor a 4 KB, lo convierte en base64 inline
+        options.limit = 4096;
+        // De lo contrario, usa file-loader para copiarlo a /img/ con hash y con publicPath adecuado
         options.fallback = {
-          loader: 'file-loader',
+          loader: "file-loader",
           options: {
-            name: 'img/[name].[hash:8].[ext]',
-            publicPath: process.env.NODE_ENV === 'production'
-              ? '/HotelCost/'
-              : '/'
-          }
+            name: "img/[name].[hash:8].[ext]",
+            publicPath:
+              process.env.NODE_ENV === "production" ? "/HotelCost/" : "/",
+          },
         };
         return options;
       });
   },
 
-  // Configuración del servidor de desarrollo
+  // Configuración para el servidor de desarrollo local
   devServer: {
     hot: true,
     open: true,
     static: {
-      directory: path.join(__dirname, 'public')
+      directory: path.join(__dirname, "public"),
     },
     client: {
       overlay: {
         warnings: false,
-        errors: true
-      }
-    }
+        errors: true,
+      },
+    },
   },
 
-  // Opciones de Vuetify
+  // Opciones específicas para Vuetify (si utilizas Vuetify)
   pluginOptions: {
     vuetify: {
-      // Configuración específica de Vuetify si es necesaria
-    }
+      // Aquí podrías poner configuraciones adicionales de Vuetify si las necesitas
+    },
   },
 
-  // Opcional: Configuración para generar reportes de bundle
+  // Opcional: ajustar warnings de tamaño de bundle
   configureWebpack: {
     performance: {
-      hints: process.env.NODE_ENV === 'production' ? 'warning' : false,
-      maxAssetSize: 512000, // 512KB
-      maxEntrypointSize: 512000 // 512KB
-    }
-  }
+      hints: process.env.NODE_ENV === "production" ? "warning" : false,
+      maxAssetSize: 512000, // 500 KB
+      maxEntrypointSize: 512000, // 500 KB
+    },
+  },
 });
