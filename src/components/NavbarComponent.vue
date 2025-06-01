@@ -132,6 +132,7 @@ const userRole = ref(localStorage.getItem('userRole') || 'Sin rol asignado');
 const menuItems = ref([]);
 const tareasPendientes = ref([]);
 
+// Mapeo de menús según rol
 const roleMenuMapping = {
   Administrador: [
     { label: 'Habitaciones', path: '/habitaciones' },
@@ -142,11 +143,11 @@ const roleMenuMapping = {
   ],
   'Empleado de Limpieza': [{ label: 'Tareas', path: '/tareas' }],
   'Supervisor de Mantenimiento': [
-    { label: 'Gestión de Habitaciones', path: '/habitaciones' },
+    { label: 'Habitaciones', path: '/habitaciones' },
     { label: 'Tareas', path: '/tareas' },
   ],
   'Gerente de Operaciones': [
-    { label: 'Gestión de Habitaciones', path: '/habitaciones' },
+    { label: 'Habitaciones', path: '/habitaciones' },
     { label: 'Tareas', path: '/tareas' },
     { label: 'Informes', path: '/informes' },
   ],
@@ -157,7 +158,11 @@ const roleMenuMapping = {
   ],
 };
 
-const userImagePath = ref(`/usuariosfotos/${loggedInUser.value}.png`);
+// Ajuste de la ruta para la foto de usuario en GitHub Pages.
+// import.meta.env.BASE_URL apunta a "/HotelCost/" en tu dominio tunix305.github.io.
+const userImagePath = ref(
+  import.meta.env.BASE_URL + `usuariosfotos/${loggedInUser.value}.png`
+);
 
 function verInformacionTarea(tarea) {
   alert(
@@ -169,10 +174,11 @@ async function marcarComoHecha(index) {
   const tarea = tareasPendientes.value[index];
 
   try {
-    await axios.delete(`https://hotelcost.somee.com/api/Tareas/${tarea.numero_Tarea}`);
+    const response = await axios.delete(
+      `https://hotelcost.somee.com/api/Tareas/${tarea.numero_Tarea}`
+    );
     console.log('✅ Eliminada:', response.data.message);
-
-    tareasPendientes.value.splice(index, 1); // Eliminar localmente tras éxito
+    tareasPendientes.value.splice(index, 1);
   } catch (error) {
     console.error('❌ Error al eliminar tarea:', error);
     alert('Error al eliminar la tarea. Intenta de nuevo.');
@@ -181,7 +187,8 @@ async function marcarComoHecha(index) {
 
 function onImageError(event) {
   if (event && event.target) {
-    event.target.src = '/usuariosfotos/manuel.png';
+    // Si falla la foto del usuario, usamos el fallback "manuel.png" dentro de la carpeta usuariosfotos
+    event.target.src = import.meta.env.BASE_URL + 'usuariosfotos/manuel.png';
   }
 }
 
@@ -202,12 +209,18 @@ onMounted(async () => {
 
   const user = localStorage.getItem('loggedInUser')?.trim();
 
-  // 🔧 Corrección aquí: incluye ambos roles reales por separado
   if (
-    ['Empleado de Limpieza', 'Supervisor de Mantenimiento', 'Recepcionista','Gerente de Operaciones'].includes(userRole.value)
+    [
+      'Empleado de Limpieza',
+      'Supervisor de Mantenimiento',
+      'Recepcionista',
+      'Gerente de Operaciones',
+    ].includes(userRole.value)
   ) {
     try {
-      const res = await axios.get(`https://hotelcost.somee.com/api/Tareas/pendientes/${user}`);
+      const res = await axios.get(
+        `https://hotelcost.somee.com/api/Tareas/pendientes/${user}`
+      );
       tareasPendientes.value = res.data || [];
     } catch (error) {
       console.warn('❌ Error al obtener tareas pendientes:', error.message);
