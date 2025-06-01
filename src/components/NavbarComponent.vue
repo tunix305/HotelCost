@@ -1,8 +1,18 @@
 <template>
   <v-app-bar app color="#1a1a1a" dark height="100" class="custom-navbar">
     <v-container class="d-flex align-center justify-center">
-      <v-img src="@/assets/logotiopo.png" alt="Logo" height="75" width="75" class="mr-6" />
+      <!-- Usamos binding ":src" para que Vue resuelva el require() correctamente -->
+      <v-img
+        :src="logoImage"
+        alt="Logo"
+        height="75"
+        width="75"
+        class="mr-6"
+      />
+
       <v-spacer />
+
+      <!-- Botones de menú -->
       <v-btn
         v-for="item in menuItems"
         :key="item.label"
@@ -15,7 +25,7 @@
 
       <v-spacer />
 
-      <!-- 🔔 Notificación mejorada -->
+      <!-- 🔔 Botón de notificaciones -->
       <v-btn icon class="notification-btn" @click="dialogTareas = true">
         <v-icon size="30" color="white">mdi-bell-outline</v-icon>
         <v-badge
@@ -29,7 +39,13 @@
       </v-btn>
 
       <!-- 🪪 Diálogo de tareas pendientes -->
-      <v-dialog v-model="dialogTareas" max-width="560" transition="scale-transition">
+      <v-dialog
+        v-model="dialogTareas"
+        max-width="560"
+        transition="scale-transition"
+        persistent
+        scrollable
+      >
         <v-card class="rounded-xl elevation-12 pa-4" style="background: #fffdfc">
           <div class="d-flex align-center mb-3 pb-2 border-bottom">
             <div>
@@ -61,7 +77,6 @@
                     </div>
                   </div>
 
-                  <!-- Botón aprobar -->
                   <div class="d-flex align-center gap-2">
                     <v-btn
                       icon
@@ -71,8 +86,6 @@
                     >
                       <v-icon color="#d4af37" size="26">mdi-check</v-icon>
                     </v-btn>
-
-                   
                   </div>
                 </div>
               </v-list-item>
@@ -87,29 +100,40 @@
 
           <div class="d-flex justify-space-between align-center mt-5 pt-3 border-top">
             <span class="text-caption grey--text">Actualizado: justo ahora</span>
-            <v-btn @click="dialogTareas = false" class="boton-cerrar-gold">Cerrar</v-btn>
+            <v-btn @click="dialogTareas = false" class="boton-cerrar-gold">
+              Cerrar
+            </v-btn>
           </div>
         </v-card>
       </v-dialog>
 
-      <!-- 👤 Avatar -->
+      <!-- 👤 Avatar (usuario) -->
       <v-avatar size="80" class="profile-avatar" @click="dialog = true">
+        <!-- En producción, userImagePath ya apunta a algo como "usuariosfotos/petra.png" -->
         <v-img :src="userImagePath" alt="Usuario" @error="onImageError" />
       </v-avatar>
 
-      <!-- 🔐 Logout -->
-      <v-dialog v-model="dialog" max-width="400">
+      <!-- 🔐 Diálogo de Cerrar sesión -->
+      <v-dialog v-model="dialog" max-width="400" persistent>
         <v-card class="logout-card rounded-xl">
           <v-card-title class="headline d-flex align-center justify-center">
-            <v-img src="@/assets/logotiopo.png" alt="Logo" height="40" class="mr-2" />
+            <v-img :src="logoImage" alt="Logo" height="40" class="mr-2" />
             ¿Cerrar sesión?
           </v-card-title>
           <v-card-text class="text-center">
             Puedes volver a iniciar sesión en cualquier momento.
           </v-card-text>
           <v-card-actions class="dialog-actions">
-            <v-btn class="dialog-button logout rounded-pill" @click="logout">Cerrar sesión</v-btn>
-            <v-btn class="dialog-button cancel rounded-pill" @click="dialog = false">
+            <v-btn
+              class="dialog-button logout rounded-pill"
+              @click="logout"
+            >
+              Cerrar sesión
+            </v-btn>
+            <v-btn
+              class="dialog-button cancel rounded-pill"
+              @click="dialog = false"
+            >
               Cancelar
             </v-btn>
           </v-card-actions>
@@ -124,6 +148,9 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+// ① Importamos el logo con require
+const logoImage = require('@/assets/logotiopo.png');
+
 const router = useRouter();
 const dialog = ref(false);
 const dialogTareas = ref(false);
@@ -132,6 +159,7 @@ const userRole = ref(localStorage.getItem('userRole') || 'Sin rol asignado');
 const menuItems = ref([]);
 const tareasPendientes = ref([]);
 
+// ② Mapeo de roles a rutas de menú
 const roleMenuMapping = {
   Administrador: [
     { label: 'Habitaciones', path: '/habitaciones' },
@@ -157,22 +185,18 @@ const roleMenuMapping = {
   ],
 };
 
-const userImagePath = ref(`/usuariosfotos/${loggedInUser.value}.png`);
-
-function verInformacionTarea(tarea) {
-  alert(
-    `📝 Descripción: ${tarea.descripcion}\n🛏 Habitación: ${tarea.numero_Habitacion}\n⚠️ Prioridad: ${tarea.nivel_Prioridad}`
-  );
-}
+// ③ Construimos la ruta relativa a la carpeta "docs/HotelCost" (ejemplo: usuariosfotos/petra.png)
+const userImagePath = ref(`usuariosfotos/${loggedInUser.value}.png`);
 
 async function marcarComoHecha(index) {
   const tarea = tareasPendientes.value[index];
-
   try {
-    const response = await axios.delete(`https://localhost:7239/api/Tareas/${tarea.numero_Tarea}`);
+    // Ajusta la URL según tu backend real en producción
+    const response = await axios.delete(
+      `https://localhost:7239/api/Tareas/${tarea.numero_Tarea}`
+    );
     console.log('✅ Eliminada:', response.data.message);
-
-    tareasPendientes.value.splice(index, 1); // Eliminar localmente tras éxito
+    tareasPendientes.value.splice(index, 1);
   } catch (error) {
     console.error('❌ Error al eliminar tarea:', error);
     alert('Error al eliminar la tarea. Intenta de nuevo.');
@@ -181,7 +205,8 @@ async function marcarComoHecha(index) {
 
 function onImageError(event) {
   if (event && event.target) {
-    event.target.src = '/usuariosfotos/manuel.png';
+    // Ruta relativa dentro de tu carpeta "docs/" (GitHub Pages)
+    event.target.src = 'usuariosfotos/manuel.png';
   }
 }
 
@@ -201,12 +226,13 @@ onMounted(async () => {
   }
 
   const user = localStorage.getItem('loggedInUser')?.trim();
-
-  // 🔧 Corrección aquí: incluye ambos roles reales por separado
   if (
-    ['Empleado de Limpieza', 'Supervisor de Mantenimiento', 'Recepcionista','Gerente de Operaciones'].includes(userRole.value)
+    ['Empleado de Limpieza', 'Supervisor de Mantenimiento', 'Recepcionista', 'Gerente de Operaciones'].includes(
+      userRole.value
+    )
   ) {
     try {
+      // Ajusta la URL según tu backend real en producción
       const res = await axios.get(`https://localhost:7239/api/Tareas/pendientes/${user}`);
       tareasPendientes.value = res.data || [];
     } catch (error) {
@@ -215,7 +241,6 @@ onMounted(async () => {
   }
 });
 </script>
-
 
 <style scoped>
 .v-app-bar {
