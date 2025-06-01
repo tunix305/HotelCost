@@ -57,7 +57,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 
@@ -94,8 +94,38 @@ const roleMenuMapping = {
   ],
 };
 
-// 🔴 AQUÍ YA NO PONGO "/" AL PRINCIPIO. RUTA RELATIVA a /HotelCost/
-const userImagePath = ref(`usuariosfotos/${loggedInUser.value}.png`);
+// Ruta reactiva para la imagen del usuario (actualizado)
+const userImagePath = computed(() => {
+  const user = loggedInUser.value?.trim();
+  if (!user) return getImageUrl('default.png');
+  
+  // Limpia el nombre de usuario para la URL
+  const cleanName = user.toLowerCase()
+    .replace(/\s+/g, '_')  // Reemplaza espacios con _
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, ''); // Elimina acentos
+  
+  return getImageUrl(`${cleanName}.png`);
+});
+
+// Función para construir la URL correcta de la imagen
+function getImageUrl(filename) {
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  return `${baseUrl}usuariosfotos/${filename}`;
+}
+
+// Manejador de errores mejorado
+function onImageError(event) {
+  const img = event?.target;
+  if (img) {
+    console.warn('Error al cargar imagen de usuario:', img.src);
+    
+    // Intenta cargar la imagen por defecto
+    img.src = getImageUrl('default.png');
+    
+    // Verifica si la imagen por defecto también falla
+    img.onerror = null; // Elimina el manejador para evitar bucles
+  }
+}
 
 function verInformacionTarea(tarea) {
   alert(
@@ -116,13 +146,6 @@ async function marcarComoHecha(index) {
   }
 }
 
-function onImageError(event) {
-  if (event && event.target) {
-    // 🔴 Aquí tampoco lleva "/" delante. Ruta relativa:
-    event.target.src = "usuariosfotos/manuel.png";
-  }
-}
-
 function navigateTo(path) {
   router.push(path);
 }
@@ -134,6 +157,10 @@ function logout() {
 }
 
 onMounted(async () => {
+  // Depuración: muestra información útil en consola
+  console.log('Usuario actual:', loggedInUser.value);
+  console.log('Ruta de imagen calculada:', userImagePath.value);
+  
   if (userRole.value && roleMenuMapping[userRole.value]) {
     menuItems.value = roleMenuMapping[userRole.value];
   }
