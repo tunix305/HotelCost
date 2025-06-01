@@ -41,7 +41,7 @@
           </div>
 
           <v-scroll-y-transition group>
-            <v-list v-if="tareasPendientes.length > 0" class="pa-0">
+            <v-list v-if="tareasPendientes.length" class="pa-0">
               <v-list-item
                 v-for="(t, i) in tareasPendientes"
                 :key="i"
@@ -71,6 +71,8 @@
                     >
                       <v-icon color="#d4af37" size="26">mdi-check</v-icon>
                     </v-btn>
+
+                   
                   </div>
                 </div>
               </v-list-item>
@@ -84,7 +86,7 @@
           </v-scroll-y-transition>
 
           <div class="d-flex justify-space-between align-center mt-5 pt-3 border-top">
-            <span class="text-caption grey--text">Actualizado: {{ new Date().toLocaleTimeString() }}</span>
+            <span class="text-caption grey--text">Actualizado: justo ahora</span>
             <v-btn @click="dialogTareas = false" class="boton-cerrar-gold">Cerrar</v-btn>
           </div>
         </v-card>
@@ -95,7 +97,7 @@
         <v-img :src="userImagePath" alt="Usuario" @error="onImageError" />
       </v-avatar>
 
-      <!-- 🔐 Diálogo de Logout -->
+      <!-- 🔐 Logout -->
       <v-dialog v-model="dialog" max-width="400">
         <v-card class="logout-card rounded-xl">
           <v-card-title class="headline d-flex align-center justify-center">
@@ -103,23 +105,11 @@
             ¿Cerrar sesión?
           </v-card-title>
           <v-card-text class="text-center">
-            Estás a punto de salir de la aplicación.
+            Puedes volver a iniciar sesión en cualquier momento.
           </v-card-text>
           <v-card-actions class="dialog-actions">
-            <v-btn 
-              class="dialog-button logout rounded-pill" 
-              @click="logout"
-              block
-            >
-              <v-icon left>mdi-logout</v-icon>
-              Cerrar sesión
-            </v-btn>
-            <v-btn 
-              class="dialog-button cancel rounded-pill" 
-              @click="dialog = false"
-              block
-            >
-              <v-icon left>mdi-close</v-icon>
+            <v-btn class="dialog-button logout rounded-pill" @click="logout">Cerrar sesión</v-btn>
+            <v-btn class="dialog-button cancel rounded-pill" @click="dialog = false">
               Cancelar
             </v-btn>
           </v-card-actions>
@@ -130,7 +120,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
@@ -160,30 +150,29 @@ const roleMenuMapping = {
     { label: 'Tareas', path: '/tareas' },
     { label: 'Informes', path: '/informes' },
   ],
-  Recepcionista: [
+  'Recepcionista': [
     { label: 'Habitaciones', path: '/habitaciones' },
     { label: 'Reservaciónes', path: '/resevaciones' },
     { label: 'Clientes', path: '/clientes' },
   ],
 };
 
-// Ruta reactiva para la imagen del usuario
-const userImagePath = computed(() => {
-  const user = loggedInUser.value?.trim();
-  if (!user) return '/usuariosfotos/default.png';
-  
-  const cleanName = user.toLowerCase()
-    .replace(/\s+/g, '_')
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  
-  return `/usuariosfotos/${cleanName}.png`;
-});
+const userImagePath = ref(`/usuariosfotos/${loggedInUser.value}.png`);
+
+function verInformacionTarea(tarea) {
+  alert(
+    `📝 Descripción: ${tarea.descripcion}\n🛏 Habitación: ${tarea.numero_Habitacion}\n⚠️ Prioridad: ${tarea.nivel_Prioridad}`
+  );
+}
 
 async function marcarComoHecha(index) {
   const tarea = tareasPendientes.value[index];
+
   try {
-    await axios.delete(`https://hotelcost.somee.com/api/Tareas/${tarea.numero_Tarea}`);
-    tareasPendientes.value.splice(index, 1);
+    const response = await axios.delete(`https://localhost:7239/api/Tareas/${tarea.numero_Tarea}`);
+    console.log('✅ Eliminada:', response.data.message);
+
+    tareasPendientes.value.splice(index, 1); // Eliminar localmente tras éxito
   } catch (error) {
     console.error('❌ Error al eliminar tarea:', error);
     alert('Error al eliminar la tarea. Intenta de nuevo.');
@@ -191,8 +180,8 @@ async function marcarComoHecha(index) {
 }
 
 function onImageError(event) {
-  if (event?.target) {
-    event.target.src = '/usuariosfotos/default.png';
+  if (event && event.target) {
+    event.target.src = '/usuariosfotos/manuel.png';
   }
 }
 
@@ -203,27 +192,22 @@ function navigateTo(path) {
 function logout() {
   localStorage.removeItem('loggedInUser');
   localStorage.removeItem('userRole');
-  router.push('/login'); // Redirige a la página de login
+  router.push('/');
 }
 
 onMounted(async () => {
-  // Configurar menú según rol
   if (userRole.value && roleMenuMapping[userRole.value]) {
     menuItems.value = roleMenuMapping[userRole.value];
   }
 
-  // Cargar tareas pendientes si aplica
   const user = localStorage.getItem('loggedInUser')?.trim();
-  const rolesConTareas = [
-    'Empleado de Limpieza',
-    'Supervisor de Mantenimiento',
-    'Recepcionista',
-    'Gerente de Operaciones'
-  ];
 
-  if (user && rolesConTareas.includes(userRole.value)) {
+  // 🔧 Corrección aquí: incluye ambos roles reales por separado
+  if (
+    ['Empleado de Limpieza', 'Supervisor de Mantenimiento', 'Recepcionista','Gerente de Operaciones'].includes(userRole.value)
+  ) {
     try {
-      const res = await axios.get(`https://hotelcost.somee.com/api/Tareas/pendientes/${user}`);
+      const res = await axios.get(`https://localhost:7239/api/Tareas/pendientes/${user}`);
       tareasPendientes.value = res.data || [];
     } catch (error) {
       console.warn('❌ Error al obtener tareas pendientes:', error.message);
@@ -232,8 +216,8 @@ onMounted(async () => {
 });
 </script>
 
+
 <style scoped>
-/* Estilos anteriores se mantienen igual */
 .v-app-bar {
   padding: 0 50px;
   height: 100px !important;
