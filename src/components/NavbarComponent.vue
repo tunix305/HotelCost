@@ -157,7 +157,7 @@ const roleMenuMapping = {
   ],
 };
 
-const userImagePath = ref(`usuariosfotos/${loggedInUser.value}.png`);
+const userImagePath = ref(`/usuariosfotos/${loggedInUser.value}.png`);
 
 function verInformacionTarea(tarea) {
   alert(
@@ -181,8 +181,7 @@ async function marcarComoHecha(index) {
 
 function onImageError(event) {
   if (event && event.target) {
-    // Igual, sin la barra delante
-    event.target.src = 'usuariosfotos/manuel.png';
+    event.target.src = '/usuariosfotos/manuel.png';
   }
 }
 
