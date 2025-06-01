@@ -93,86 +93,90 @@
 </template>
 
 <script>
-  import axios from 'axios';
+import axios from 'axios';
 
-  export default {
-    name: 'LoginView',
-    data() {
+export default {
+  name: 'LoginView',
+  data() {
+    return {
+      username: '',
+      password: '',
+      role: '',
+      roles: [
+        'Recepcionista',
+        'Empleado de Limpieza',
+        'Supervisor de Mantenimiento',
+        'Gerente de Operaciones',
+      ],
+      snackbar: false,
+      snackbarMessage: '',
+      showErrorDialog: false,
+      showPasswordDialog: false,
+      showRoleErrorDialog: false,
+    };
+  },
+  computed: {
+    isAdmin() {
+      return this.username.toLowerCase() === 'petra';
+    },
+    userRoleMapping() {
       return {
-        username: '',
-        password: '',
-        role: '',
-        roles: [
-          'Recepcionista',
-          'Empleado de Limpieza',
-          'Supervisor de Mantenimiento',
-          'Gerente de Operaciones',
-        ],
-        snackbar: false,
-        snackbarMessage: '',
-        showErrorDialog: false,
-        showPasswordDialog: false,
-        showRoleErrorDialog: false,
+        petra: 'Administrador',
+        manuel: 'Supervisor de Mantenimiento',
+        edgar: 'Recepcionista',
+        luis: 'Empleado de Limpieza',
+        wilver: 'Gerente de Operaciones',
       };
     },
-    computed: {
-      isAdmin() {
-        return this.username.toLowerCase() === 'petra';
-      },
-      userRoleMapping() {
-        return {
-          petra: 'Administrador',
-          manuel: 'Supervisor de Mantenimiento',
-          edgar: 'Recepcionista',
-          luis: 'Empleado de Limpieza',
-          wilver: 'Gerente de Operaciones',
-        };
-      },
-    },
-    methods: {
-      async login() {
-        const usernameLower = this.username.toLowerCase();
+  },
+  methods: {
+    async login() {
+      const usernameLower = this.username.toLowerCase();
 
-        if (!this.username || !this.password || (!this.isAdmin && !this.role)) {
-          this.snackbarMessage = 'Por favor, completa todos los campos.';
-          this.snackbar = true;
-          return;
-        }
+      if (!this.username || !this.password || (!this.isAdmin && !this.role)) {
+        this.snackbarMessage = 'Por favor, completa todos los campos.';
+        this.snackbar = true;
+        return;
+      }
 
-        if (
-          this.userRoleMapping[usernameLower] &&
-          this.userRoleMapping[usernameLower] !== (this.isAdmin ? 'Administrador' : this.role)
-        ) {
-          this.showRoleErrorDialog = true;
-          return;
-        }
+      if (
+        this.userRoleMapping[usernameLower] &&
+        this.userRoleMapping[usernameLower] !== (this.isAdmin ? 'Administrador' : this.role)
+      ) {
+        this.showRoleErrorDialog = true;
+        return;
+      }
 
-        try {
-          const response = await axios.post('https://localhost:7239/api/Users/login', {
+      try {
+        const response = await axios.post(
+          'http://www.hotelcost.somee.com/api/Users/login',
+          {
             username: this.username,
             password: this.password,
             role: this.isAdmin ? 'Administrador' : this.role,
-          });
+          }
+        );
 
-          localStorage.setItem('token', response.data.token);
-          localStorage.setItem('loggedInUser', usernameLower);
-          localStorage.setItem('userRole', this.isAdmin ? 'Administrador' : this.role);
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('loggedInUser', usernameLower);
+        localStorage.setItem('userRole', this.isAdmin ? 'Administrador' : this.role);
 
-          this.$router.push({
-            path: '/home',
-            query: {
-              username: this.username,
-              role: this.isAdmin ? 'Administrador' : this.role,
-            },
-          });
-        } catch (error) {
-          this.snackbarMessage = error.response?.data?.message || 'Error en autenticación';
-          this.snackbar = true;
-        }
-      },
+        this.$router.push({
+          path: '/home',
+          query: {
+            username: this.username,
+            role: this.isAdmin ? 'Administrador' : this.role,
+          },
+        });
+      } catch (error) {
+        this.snackbarMessage = error.response?.data?.message || 'Error en autenticación';
+        this.snackbar = true;
+      }
     },
-  };
+  },
+};
 </script>
+
 
 <style scoped>
   .login-container {
