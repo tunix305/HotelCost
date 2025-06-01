@@ -147,14 +147,20 @@ export default {
         return;
       }
 
+      // 🐞 DEBUG
+      console.log('👉 API_URL:', import.meta.env.VITE_API_URL);
+      console.log('👉 Enviando login con:', {
+        username: this.username,
+        password: this.password,
+        role: this.isAdmin ? 'Administrador' : this.role,
+      });
+
       try {
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/Users/login`,
-          {
-            username: this.username,
-            password: this.password,
-            role: this.isAdmin ? 'Administrador' : this.role,
-          }
-        );
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/Users/login`, {
+          username: this.username,
+          password: this.password,
+          role: this.isAdmin ? 'Administrador' : this.role,
+        });
 
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('loggedInUser', usernameLower);
@@ -168,6 +174,7 @@ export default {
           },
         });
       } catch (error) {
+        console.error('❌ Error en login:', error.response || error);
         this.snackbarMessage = error.response?.data?.message || 'Error en autenticación';
         this.snackbar = true;
       }
@@ -175,6 +182,7 @@ export default {
   },
 };
 </script>
+
 
 
 <style scoped>
