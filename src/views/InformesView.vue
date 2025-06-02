@@ -182,11 +182,12 @@ const loadResumenGeneral = async () => {
 
 const loadReports = async () => {
   try {
-    await axios.get('https://www.hotelcost.somee.com/api/informes');
-    recentReports.value = data.map(r => ({
-      ...r,
-      generadoEl: new Date(r.generadoEl).toLocaleDateString('es-ES'),
-    }));
+    const { data } = await axios.get('https://www.hotelcost.somee.com/api/informes');
+recentReports.value = data.map(r => ({
+  ...r,
+  generadoEl: new Date(r.generadoEl).toLocaleDateString('es-ES'),
+}));
+
   } catch (e) { console.error(e); }
 };
 
