@@ -271,10 +271,6 @@ export default {
   position: relative;
   width: 100%;
 }
-.navbar-title {
-  /* Al usar v-col, el texto ya está perfectamente centrado;
-     no es necesario position:absolute ni margins. */
-}
 
 /* ==================================================
    7) Si quieres ajustes adicionales en móvil (opcional)

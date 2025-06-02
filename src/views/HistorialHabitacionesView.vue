@@ -55,45 +55,23 @@
             No hay datos en el historial.
           </div>
 
-          <v-data-table
-            v-else
-            :headers="headers"
-            :items="historial"
-            class="elevation-1 historial-table"
-            dense
-            :sort-by="['fecha_Cambio']"
-            :sort-desc="[true]"
-            :items-per-page="10"
-          >
-            <!-- Personalización de columnas -->
-            <template #item.id_Habitacion="{ item }">
-              <span class="font-weight-bold">ID:</span> {{ item.id_Habitacion || 'N/A' }}
-            </template>
-            <template #item.numero_Habitacion="{ item }">
-              <span class="font-weight-bold">Habitación:</span> {{ item.numero_Habitacion || 'N/A' }}
-            </template>
-            <template #item.fecha_Entrada="{ item }">
-              <div>
-                <span class="font-weight-bold">Entrada:</span><br>
-                {{ formatDate(item.fecha_Entrada) || 'N/A' }}
-              </div>
-            </template>
-            <template #item.fecha_Salida="{ item }">
-              <div>
-                <span class="font-weight-bold">Salida:</span><br>
-                {{ formatDate(item.fecha_Salida) || 'N/A' }}
-              </div>
-            </template>
-            <template #item.fecha_Cambio="{ item }">
-              <div>
-                <span class="font-weight-bold">Reserva:</span><br>
-                {{ formatDate(item.fecha_Cambio) || 'N/A' }}
-              </div>
-            </template>
-            <template #item.usuario_Modificacion="{ item }">
-              <span class="font-weight-bold">Usuario:</span> {{ item.usuario_Modificacion || 'N/A' }}
-            </template>
-          </v-data-table>
+         <v-data-table
+  v-else
+  :headers="headers"
+  :items="historial"
+  class="elevation-1 historial-table"
+  dense
+  :sort-by="['fecha_Cambio']"
+  :sort-desc="[true]"
+  :items-per-page="10"
+>
+  <template #item.fecha_Cambio="{ item }">
+    <div>
+      {{ formatDate(item.fecha_Cambio) }}
+    </div>
+  </template>
+</v-data-table>
+
         </v-card>
       </v-container>
     </v-main>
@@ -109,18 +87,18 @@ export default {
     return {
       historial: [],
       headers: [
-        { text: "ID Habitación", value: "id_Habitacion", width: "120px" },
-        { text: "Número", value: "numero_Habitacion", width: "120px" },
-        { text: "Fechas de Estancia", value: "fecha_Entrada", width: "200px" },
-        { text: "Fecha de Salida", value: "fecha_Salida", width: "200px" },
-        { text: "Fecha de Reserva", value: "fecha_Cambio", width: "200px" },
-        { text: "Usuario", value: "usuario_Modificacion", width: "150px" },
+        { text: "ID Historial", value: "id_Historial" },
+        { text: "ID Habitación", value: "id_Habitacion" },
+        { text: "Número", value: "numero_Habitacion" },
+        { text: "Estado Anterior", value: "estado_Anterior" },
+        { text: "Estado Nuevo", value: "estado_Nuevo" },
+        { text: "Fecha de Cambio", value: "fecha_Cambio" },
+        { text: "Usuario", value: "usuario_Modificacion" },
       ],
-      drawer: false, // controla el estado del drawer (menú en móvil)
+      drawer: false,
     };
   },
   methods: {
-    // Método para volver a la lista de habitaciones
     goBack() {
       this.$router.push({
         path: "/habitaciones",
@@ -130,34 +108,22 @@ export default {
         },
       });
     },
-    // Cierra el drawer y luego navega para evitar solapamiento visual
     handleDrawerBack() {
       this.drawer = false;
-      // Pequeño timeout para que el drawer tenga tiempo de cerrarse visualmente
       setTimeout(() => {
         this.goBack();
       }, 200);
     },
-    // Carga los datos del historial desde tu API
     async cargarHistorial() {
       try {
         const res = await axios.get(
-          "https://localhost:7239/api/Reservacion/HistorialReservas"
+          "https://www.hotelcost.somee.com/api/Habitaciones/HistorialCambios"
         );
-        console.log("Datos recibidos:", res.data);
-        this.historial = res.data.map((item) => ({
-          ...item,
-          // Aseguramos que los campos existan (evitamos undefined)
-          id_Habitacion: item.id_Habitacion || "N/A",
-          numero_Habitacion: item.numero_Habitacion || "N/A",
-          usuario_Modificacion:
-            item.usuario_Modificacion || "Usuario no especificado",
-        }));
+        this.historial = res.data;
       } catch (err) {
         console.error("❌ Error al cargar historial:", err);
       }
     },
-    // Formatea fechas de manera legible en español (México)
     formatDate(fecha) {
       if (!fecha) return "N/A";
       const date = new Date(fecha);
@@ -242,10 +208,19 @@ export default {
   }
 
   .regresar-btn {
-    font-size: 0.75rem !important;
-    padding: 6px 16px !important;
-    min-width: unset;
-  }
+  background-color: #fbc02d !important;
+  color: #1a1a1a !important;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-radius: 8px;
+  padding: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.regresar-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
 
   .logo-img {
     max-width: 40px;
