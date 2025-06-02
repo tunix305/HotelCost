@@ -173,7 +173,7 @@ const confirmarMes = () => { updateMonth(); monthDialog.value = false; };
 
 const loadResumenGeneral = async () => {
   try {
-    const { data } = await axios.get('https://localhost:7239/api/informes/resumen-general');
+    const { data } = await axios.get('https://www.hotelcost.somee.com/api/informes/resumen-general');
     ocupacionTotal.value     = data.porcentajeOcupacion;
     ingresosMensuales.value  = data.ingresosMensuales;
     rendimientoMensual.value = data.rendimiento;
@@ -182,7 +182,7 @@ const loadResumenGeneral = async () => {
 
 const loadReports = async () => {
   try {
-    const { data } = await axios.get('https://localhost:7239/api/informes');
+    await axios.get('https://www.hotelcost.somee.com/api/informes');
     recentReports.value = data.map(r => ({
       ...r,
       generadoEl: new Date(r.generadoEl).toLocaleDateString('es-ES'),
@@ -202,7 +202,7 @@ const generateReport = async () => {
     comentario:   comentario.value,
   };
   try {
-    await axios.post('https://localhost:7239/api/informes', nuevo);
+    await axios.post('https://www.hotelcost.somee.com/api/informes', nuevo);
     await loadReports();
     alert('Informe generado.');
     selectedReportType.value = '';
@@ -217,7 +217,7 @@ const generateReport = async () => {
 const deleteReport = async id => {
   if (!confirm('¿Eliminar este informe?')) return;
   try {
-    await axios.delete(`https://localhost:7239/api/informes/${id}`);
+    await axios.delete(`https://www.hotelcost.somee.com/api/informes/${id}`);
     await loadReports();
     alert('Informe eliminado.');
   } catch (e) {
