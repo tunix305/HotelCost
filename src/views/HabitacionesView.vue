@@ -2,21 +2,78 @@
   <v-app>
     <!-- Barra de navegación -->
     <v-app-bar app color="#1a1a1a" dark height="100">
-      <v-container fluid class="d-flex align-center justify-space-between px-6">
-        <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="60" />
-
-        <h1 class="white--text text-h5 font-weight-bold text-center flex-grow-1 mb-0">
-          Gestión de Habitaciones
-        </h1>
-
-        <div class="d-flex align-center">
+      <v-container fluid class="d-flex align-center justify-space-between px-4">
+        <!-- 1) Icono de menú hamburguesa SOLO en móvil -->
+        <v-app-bar-nav-icon
+          class="d-sm-none d-md-none"
+          @click="drawer = true"
+        />
+        <!-- 2) Logo y Título -->
+        <v-row class="align-center flex-grow-1">
+          <v-col cols="auto" class="d-flex align-center">
+            <v-img
+              src="@/assets/logotiopo.png"
+              alt="Logo"
+              max-width="60"
+              max-height="60"
+            />
+          </v-col>
+          <v-col cols="auto" class="d-flex align-center">
+            <h1 class="white--text text-h6 font-weight-bold mb-0">
+              Gestión de Habitaciones
+            </h1>
+          </v-col>
+        </v-row>
+        <!-- 3) Botones “Regresar” y “Historial” solo en desktop -->
+        <v-row class="d-none d-sm-flex align-center">
           <v-btn class="btn-historial mr-3" @click="verHistorial">
             HISTORIAL DE CAMBIOS
           </v-btn>
           <v-btn class="btn-regresar" @click="goToHome">REGRESAR</v-btn>
-        </div>
+        </v-row>
       </v-container>
     </v-app-bar>
+
+    <!-- Drawer (aparece solo en móvil) -->
+    <v-navigation-drawer
+      v-model="drawer"
+      app
+      temporary
+      class="d-sm-flex d-md-flex d-lg-none"
+    >
+      <v-list nav dense>
+        <v-list-item>
+          <v-list-item-avatar>
+            <v-img src="@/assets/logotiopo.png" alt="Logo" />
+          </v-list-item-avatar>
+          <v-list-item-content>
+            <v-list-item-title class="font-weight-bold">
+              HotelCost
+            </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-divider class="my-2" />
+
+        <v-list-item @click="verHistorial; drawer = false">
+          <v-list-item-icon>
+            <v-icon>mdi-history</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Historial de Cambios</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item @click="goToHome; drawer = false">
+          <v-list-item-icon>
+            <v-icon>mdi-arrow-left-bold</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Regresar</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
 
     <!-- Contenido principal con dos secciones separadas -->
     <v-main class="habitaciones-container">
@@ -32,12 +89,17 @@
               <v-simple-table class="custom-table larger-table">
                 <thead>
                   <tr>
-                    <th class="header-cell header-title">NÚMERO DE HABITACIÓN</th>
+                    <th class="header-cell header-title">
+                      NÚMERO DE HABITACIÓN
+                    </th>
                     <th class="header-cell header-title">ESTADO</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="room in habitacionesDisponibles" :key="room.id_Habitacion">
+                  <tr
+                    v-for="room in habitacionesDisponibles"
+                    :key="room.id_Habitacion"
+                  >
                     <td class="room-number">{{ room.numero_Habitacion }}</td>
                     <td class="estado-text">{{ room.estado_Actual }}</td>
                   </tr>
@@ -56,12 +118,17 @@
               <v-simple-table class="custom-table larger-table">
                 <thead>
                   <tr>
-                    <th class="header-cell header-title">NÚMERO DE HABITACIÓN</th>
+                    <th class="header-cell header-title">
+                      NÚMERO DE HABITACIÓN
+                    </th>
                     <th class="header-cell header-title">ESTADO</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="room in habitacionesNoDisponibles" :key="room.id_Habitacion">
+                  <tr
+                    v-for="room in habitacionesNoDisponibles"
+                    :key="room.id_Habitacion"
+                  >
                     <td class="room-number">{{ room.numero_Habitacion }}</td>
                     <td class="estado-text">{{ room.estado_Actual }}</td>
                   </tr>
@@ -76,29 +143,34 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
-  name: 'HabitacionesView',
+  name: "HabitacionesView",
   data() {
     return {
       habitaciones: [],
-      username: '',
-      role: '',
+      username: "",
+      role: "",
+      drawer: false, // controla el estado del drawer (móvil)
     };
   },
   computed: {
     habitacionesDisponibles() {
-      return this.habitaciones.filter(h => h.estado_Actual.toLowerCase() === 'disponible');
+      return this.habitaciones.filter(
+        (h) => h.estado_Actual.toLowerCase() === "disponible"
+      );
     },
     habitacionesNoDisponibles() {
-      return this.habitaciones.filter(h => h.estado_Actual.toLowerCase() !== 'disponible');
+      return this.habitaciones.filter(
+        (h) => h.estado_Actual.toLowerCase() !== "disponible"
+      );
     },
   },
   methods: {
     goToHome() {
       this.$router.push({
-        path: '/home',
+        path: "/home",
         query: {
           username: this.username,
           role: this.role,
@@ -107,7 +179,7 @@ export default {
     },
     verHistorial() {
       this.$router.push({
-        path: '/historial-habitaciones',
+        path: "/historial-habitaciones",
         query: {
           username: this.username,
           role: this.role,
@@ -116,33 +188,38 @@ export default {
     },
     async cargarHabitaciones() {
       try {
-        const res = await axios.get('https://hotelcost.somee.com/api/Habitaciones/EstadosActualizados');
+        const res = await axios.get(
+          "https://hotelcost.somee.com/api/Habitaciones/EstadosActualizados"
+        );
         this.habitaciones = res.data;
       } catch (err) {
-        console.error('❌ Error al cargar habitaciones:', err);
+        console.error("❌ Error al cargar habitaciones:", err);
       }
     },
   },
   mounted() {
     const query = this.$route.query;
-    this.username = query.username || 'Invitado';
-    this.role = query.role || 'Sin rol asignado';
+    this.username = query.username || "Invitado";
+    this.role = query.role || "Sin rol asignado";
     this.cargarHabitaciones();
   },
 };
 </script>
 
 <style scoped>
+/* Ajustes generales */
 .habitaciones-container {
   background-color: #22cbc3;
   min-height: calc(100vh - 100px);
   padding: 100px 0 20px;
 }
 
+/* Fila con separación entre las dos tarjetas */
 .section-row {
   gap: 24px;
 }
 
+/* Estilo de cada tarjeta */
 .section-card {
   background-color: rgba(0, 0, 0, 0.85);
   border-radius: 16px;
@@ -150,6 +227,7 @@ export default {
   box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.5);
 }
 
+/* Cabecera de cada sección */
 .section-header {
   display: flex;
   align-items: center;
@@ -171,12 +249,14 @@ export default {
   margin-right: 8px;
 }
 
+/* Tabla transparente para que el fondo del card se vea */
 .custom-table {
   background: transparent !important;
   color: white;
   padding: 8px;
 }
 
+/* Celdas de encabezado */
 .header-cell {
   color: white;
   font-weight: bold;
@@ -189,6 +269,7 @@ export default {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+/* Número de habitación */
 .room-number {
   font-weight: bold;
   font-size: 1.8rem;
@@ -196,6 +277,7 @@ export default {
   padding: 8px;
 }
 
+/* Texto del estado */
 .estado-text {
   font-size: 1rem;
   font-weight: 500;
@@ -203,6 +285,7 @@ export default {
   padding: 8px;
 }
 
+/* Botones en desktop */
 .btn-regresar {
   background-color: #fdd835 !important;
   color: #1a1a1a !important;
@@ -214,7 +297,6 @@ export default {
   box-shadow: none;
   transition: 0.3s ease;
 }
-
 .btn-regresar:hover {
   background-color: #ffeb3b !important;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
@@ -231,9 +313,14 @@ export default {
   box-shadow: none;
   transition: 0.3s ease;
 }
-
 .btn-historial:hover {
   background-color: #fdd835 !important;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Override de margen del app-bar-nav-icon para no afectar alineación */
+.v-app-bar-nav-icon {
+  margin-left: 8px;
+  color: white;
 }
 </style>
