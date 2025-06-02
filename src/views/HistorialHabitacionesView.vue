@@ -1,41 +1,14 @@
 <template>
   <v-app>
     <!-- Encabezado con App-Bar -->
-    <v-app-bar app color="#1a1a1a" dark>
-      <v-container fluid class="d-flex align-center justify-space-between px-4">
+    <v-app-bar app color="#1a1a1a" dark height="auto" class="navbar">
+  <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
+    <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="50" class="logo-img" />
+    <h1 class="navbar-title white--text text-center">Historial de Habitaciones Reservadas</h1>
+    <v-btn class="regresar-btn" @click="goToHome">REGRESAR</v-btn>
+  </v-container>
+</v-app-bar>
 
-        <!-- 1) Icono hamburguesa (visible solo en móvil) -->
-        <v-app-bar-nav-icon
-          class="d-sm-none d-md-none"
-          @click="drawer = true"
-        />
-
-        <!-- 2) Logo y Título (siempre visibles) -->
-        <v-row class="align-center flex-grow-1">
-          <v-col cols="auto" class="d-flex align-center">
-            <v-img
-              src="@/assets/logotiopo.png"
-              alt="Logo"
-              max-width="60"
-              max-height="60"
-            />
-          </v-col>
-          <v-col cols="auto" class="d-flex align-center">
-            <h1 class="white--text text-h6 font-weight-bold mb-0">
-              Historial de Habitaciones Reservadas
-            </h1>
-          </v-col>
-        </v-row>
-
-        <!-- 3) Botón “REGRESAR” solo en desktop -->
-        <v-row class="d-none d-sm-flex align-center">
-          <v-btn class="btn-regresar" @click="goBack">
-            REGRESAR
-          </v-btn>
-        </v-row>
-
-      </v-container>
-    </v-app-bar>
 
     <!-- Drawer (solo en móvil) -->
     <v-navigation-drawer
@@ -251,4 +224,32 @@ export default {
   margin-left: 8px;
   color: white;
 }
+.navbar-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0;
+  flex: 1;
+}
+
+.logo-img {
+  max-width: 50px;
+}
+
+@media (max-width: 600px) {
+  .navbar-title {
+    font-size: 1rem;
+    margin: 8px 0;
+  }
+
+  .regresar-btn {
+    font-size: 0.75rem !important;
+    padding: 6px 16px !important;
+    min-width: unset;
+  }
+
+  .logo-img {
+    max-width: 40px;
+  }
+}
+
 </style>

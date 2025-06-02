@@ -3,33 +3,14 @@
     <!-- ================================
          CABECERA: logo | título centrado | botón REGRESAR
          ========================================= -->
-    <v-app-bar app color="#1a1a1a" dark height="100">
-      <v-row no-gutters align="center" class="w-100">
-        <!-- 1) Logo a la izquierda -->
-        <v-col cols="2" class="d-flex align-center">
-          <v-img
-            src="@/assets/logotiopo.png"
-            alt="Logo"
-            contain
-            max-width="60"
-          />
-        </v-col>
+    <v-app-bar app color="#1a1a1a" dark height="auto" class="navbar">
+  <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
+    <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="50" class="logo-img" />
+    <h1 class="navbar-title white--text text-center">Gestión de Tareas</h1>
+    <v-btn class="regresar-btn" @click="goToHome">REGRESAR</v-btn>
+  </v-container>
+</v-app-bar>
 
-        <!-- 2) Título EN EL CENTRO -->
-        <v-col cols="8" class="text-center">
-          <span class="white--text font-weight-bold text-h6">
-            Gestión de Tareas
-          </span>
-        </v-col>
-
-        <!-- 3) Botón “REGRESAR” a la derecha -->
-        <v-col cols="2" class="d-flex justify-end">
-          <v-btn class="custom-back-btn" @click="goToHome">
-            REGRESAR
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-app-bar>
 
     <!-- ================================
          CONTENIDO PRINCIPAL: formulario de tareas

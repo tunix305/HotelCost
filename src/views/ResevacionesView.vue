@@ -1,21 +1,14 @@
 <template>
   <v-app>
     <!-- Navbar alineada -->
-    <v-app-bar app color="#1a1a1a" dark height="80">
-      <v-container fluid class="pa-0">
-        <v-row no-gutters align="center">
-          <v-col cols="2" class="d-flex align-center">
-            <v-img src="@/assets/logotiopo.png" alt="Logo" contain height="60" />
-          </v-col>
-          <v-col cols="8" class="text-center">
-            <h2 class="white--text m-0">Registro de Reservas</h2>
-          </v-col>
-          <v-col cols="2" class="d-flex justify-end">
-            <v-btn class="back-button" @click="goToHome">REGRESAR</v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-app-bar>
+    <v-app-bar app color="#1a1a1a" dark height="auto" class="navbar">
+  <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
+    <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="50" class="logo-img" />
+    <h1 class="navbar-title white--text text-center">Registro de Reservas</h1>
+    <v-btn class="regresar-btn" @click="goToHome">REGRESAR</v-btn>
+  </v-container>
+</v-app-bar>
+
 
     <!-- Main con fondo turquesa y cards más abajo -->
     <v-main class="reservas-main pa-0">
@@ -404,4 +397,32 @@ body,
 .back-button {
   margin-right: 16px;
 }
+.navbar-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0;
+  flex: 1;
+}
+
+.logo-img {
+  max-width: 50px;
+}
+
+@media (max-width: 600px) {
+  .navbar-title {
+    font-size: 1rem;
+    margin: 8px 0;
+  }
+
+  .regresar-btn {
+    font-size: 0.75rem !important;
+    padding: 6px 16px !important;
+    min-width: unset;
+  }
+
+  .logo-img {
+    max-width: 40px;
+  }
+}
+
 </style>
