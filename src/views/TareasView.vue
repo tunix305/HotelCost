@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <!-- ================================
-         Cabecera reestructurada
+         CABECERA: logo | título centrado | botón REGRESAR
          ========================================= -->
     <v-app-bar app color="#1a1a1a" dark height="100">
       <v-row no-gutters align="center" class="w-100">
@@ -15,7 +15,7 @@
           />
         </v-col>
 
-        <!-- 2) Título centrado -->
+        <!-- 2) Título EN EL CENTRO -->
         <v-col cols="8" class="text-center">
           <span class="white--text font-weight-bold text-h6">
             Gestión de Tareas
@@ -31,11 +31,76 @@
       </v-row>
     </v-app-bar>
 
-    <!-- Resto de tu pantalla: formulario de tareas, v-main, etc. -->
+    <!-- ================================
+         CONTENIDO PRINCIPAL: formulario de tareas
+         ========================================= -->
     <v-main class="tareas-fondo pa-0">
       <v-container fluid class="d-flex justify-center align-start">
         <v-card class="tarea-card" elevation="12">
-          <!-- ... aquí va tu formulario de Tareas ... -->
+          <v-form @submit.prevent="actualizarEstado">
+            <h2 class="white--text text-center mb-6">
+              Tareas Pendientes y Estado de Habitaciones
+            </h2>
+
+            <v-select
+              v-model="selectedRoom"
+              :items="rooms"
+              item-title="nombre"
+              item-value="numero"
+              label="Número de Habitación"
+              outlined
+              dense
+              class="custom-field"
+              required
+            />
+
+            <v-select
+              v-model="selectedStatus"
+              :items="statuses"
+              label="Estado de la Habitación"
+              outlined
+              dense
+              class="custom-field"
+              required
+            />
+
+            <v-select
+              v-model="selectedPriority"
+              :items="priorities"
+              label="Prioridad de la Habitación"
+              outlined
+              dense
+              class="custom-field"
+              required
+            />
+
+            <v-select
+              v-model="selectedUser"
+              :items="asignables"
+              item-title="nombre"
+              item-value="id"
+              label="Asignar tarea a"
+              outlined
+              dense
+              class="custom-field"
+              required
+            />
+
+            <v-textarea
+              v-model="taskDescription"
+              label="Descripción de la Tarea"
+              outlined
+              dense
+              rows="3"
+              class="custom-field"
+              required
+            />
+
+            <!-- Botón ACTUALIZAR ESTADO -->
+            <v-btn block class="custom-reservar-btn mt-6" type="submit">
+              ACTUALIZAR ESTADO
+            </v-btn>
+          </v-form>
         </v-card>
       </v-container>
     </v-main>
@@ -153,19 +218,19 @@ export default {
 </script>
 
 <style scoped>
-/* -----------------------------
+/* ==================================================
    1) Evita que el contenido se “pise” con el AppBar
-   ----------------------------- */
+   ================================================== */
 .tareas-fondo {
   background-color: #22cbc3;
-  /* El padding-top debe ser exactamente la altura del AppBar (100px) */
+  /* padding-top = altura del app-bar (100px) */
   padding-top: 100px !important;
   min-height: calc(100vh - 100px);
 }
 
-/* -----------------------------
+/* ==================================================
    2) Estilos para la tarjeta que contiene el formulario
-   ----------------------------- */
+   ================================================== */
 .tarea-card {
   background-color: rgba(0, 0, 0, 0.85);
   color: white;
@@ -177,17 +242,17 @@ export default {
   max-width: 600px;
 }
 
-/* -----------------------------
+/* ==================================================
    3) Campos con fondo oscuro tenue
-   ----------------------------- */
+   ================================================== */
 .custom-field {
   margin-bottom: 20px;
   color: white;
 }
 
-/* -----------------------------
-   4) Botón “ACTUALIZAR”
-   ----------------------------- */
+/* ==================================================
+   4) Botón “ACTUALIZAR ESTADO”
+   ================================================== */
 .custom-reservar-btn {
   background-color: #fbc02d !important;
   color: black !important;
@@ -204,9 +269,9 @@ export default {
   background-color: #fdd835 !important;
 }
 
-/* -----------------------------
+/* ==================================================
    5) Botón “REGRESAR” más compacto
-   ----------------------------- */
+   ================================================== */
 .custom-back-btn {
   background-color: #fbc02d !important;
   color: black !important;
@@ -214,33 +279,34 @@ export default {
   text-transform: uppercase;
   border-radius: 8px;
   box-shadow: none;
-
-  /* Reducir padding/altura y fuente */
   padding: 4px 12px !important;
   height: 36px !important;
   font-size: 0.75rem !important;
-
   transition: background-color 0.3s ease;
 }
 .custom-back-btn:hover {
   background-color: #fdd835 !important;
 }
 
-/* -----------------------------
-   6) Asegurarse de que las columnas del AppBar se distribuyan correctamente
-   ----------------------------- */
+/* ==================================================
+   6) Asegurarse de que las columnas del AppBar
+      se distribuyan correctamente (nunca se solapen)
+   ================================================== */
 .navbar-container {
   position: relative;
   width: 100%;
 }
 .navbar-title {
-  /* ya no necesitamos position:absolute; al usar v-col centramos */
+  /* Al usar v-col, el texto ya está perfectamente centrado;
+     no es necesario position:absolute ni margins. */
 }
 
-/* -----------------------------
+/* ==================================================
    7) Si quieres ajustes adicionales en móvil (opcional)
-   ----------------------------- */
+   ================================================== */
 @media (max-width: 600px) {
+  /* En pantallas muy angostas, el botón REGRESAR puede
+     reducir aún más su padding/tamaño */
   .custom-back-btn {
     padding: 2px 10px !important;
     height: 32px !important;
