@@ -6,8 +6,7 @@
         <!-- Logo aumentado para que no se vea como miniatura -->
         <v-img
           src="@/assets/logotiopo.png"
-          alt="Logo"
-          class="logo-img"
+          alt="Logo" max-width="60"
           contain
         />
 
