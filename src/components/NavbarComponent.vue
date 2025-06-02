@@ -1,7 +1,7 @@
 <template>
   <v-app-bar app color="#1a1a1a" dark height="100" class="custom-navbar">
     <v-container class="d-flex align-center justify-center">
-      <!-- 1) Cargamos el logo vía require() para que Webpack lo procese -->
+      <!-- Logo cargado con require() para que Webpack lo incluya -->
       <v-img
         :src="logoImage"
         alt="Logo"
@@ -12,7 +12,7 @@
 
       <v-spacer />
 
-      <!-- 2) Botones del menú de acuerdo al rol -->
+      <!-- Botones de menú según rol -->
       <v-btn
         v-for="item in menuItems"
         :key="item.label"
@@ -25,7 +25,7 @@
 
       <v-spacer />
 
-      <!-- 3) Botón de notificaciones -->
+      <!-- Botón de notificaciones -->
       <v-btn icon class="notification-btn" @click="dialogTareas = true">
         <v-icon size="30" color="white">mdi-bell-outline</v-icon>
         <v-badge
@@ -38,7 +38,7 @@
         />
       </v-btn>
 
-      <!-- 4) Diálogo de tareas pendientes -->
+      <!-- Diálogo de tareas pendientes -->
       <v-dialog
         v-model="dialogTareas"
         max-width="560"
@@ -76,7 +76,6 @@
                       Prioridad: {{ t.nivel_Prioridad }}
                     </div>
                   </div>
-
                   <div class="d-flex align-center gap-2">
                     <v-btn
                       icon
@@ -107,12 +106,12 @@
         </v-card>
       </v-dialog>
 
-      <!-- 5) Avatar / Foto de usuario -->
+      <!-- Avatar/Foto de usuario -->
       <v-avatar size="80" class="profile-avatar" @click="dialog = true">
         <v-img :src="userImagePath" alt="Usuario" @error="onImageError" />
       </v-avatar>
 
-      <!-- 6) Diálogo de “¿Cerrar sesión?” -->
+      <!-- Diálogo de “Cerrar sesión” -->
       <v-dialog v-model="dialog" max-width="400" persistent>
         <v-card class="logout-card rounded-xl">
           <v-card-title class="headline d-flex align-center justify-center">
@@ -141,10 +140,10 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-// ① Cargamos el logo con require() para que Webpack lo procese
+// ① Importamos el logo para que Webpack lo procese
 const logoImage = require('@/assets/logotiopo.png');
 
-// ② Definimos la “base URL” de producción (tu API desplegado en somee.com)
+// ② Base URL de producción (Somee)
 const API_BASE = 'https://www.hotelcost.somee.com/api';
 
 const router = useRouter();
@@ -158,9 +157,7 @@ const tareasPendientes = ref([]);
 // ③ Mapeo de roles a rutas de menú
 const roleMenuMapping = {
   Administrador: [
-    { label: 'Habitaciones', path: '/habitaciones' },
-    { label: 'Reservaciónes', path: '/resevaciones' },
-    { label: 'Clientes', path: '/clientes' },
+    { label: 'Gestión de Habitaciones', path: '/habitaciones' },
     { label: 'Tareas', path: '/tareas' },
     { label: 'Informes', path: '/informes' },
   ],
@@ -175,19 +172,18 @@ const roleMenuMapping = {
     { label: 'Informes', path: '/informes' },
   ],
   'Recepcionista': [
-    { label: 'Habitaciones', path: '/habitaciones' },
-    { label: 'Reservaciónes', path: '/resevaciones' },
+    { label: 'Gestión de Habitaciones', path: '/habitaciones' },
+    { label: 'Tareas', path: '/tareas' },
     { label: 'Clientes', path: '/clientes' },
   ],
 };
 
-// ④ Ruta relativa a “docs/usuariosfotos/{username}.png”
+// ④ Ruta relativa a la carpeta “docs/usuariosfotos/{username}.png”
 const userImagePath = ref(`usuariosfotos/${loggedInUser.value}.png`);
 
 async function marcarComoHecha(index) {
   const tarea = tareasPendientes.value[index];
   try {
-    // ⑤ Usamos la URL pública en somee.com en lugar de localhost
     await axios.delete(`${API_BASE}/Tareas/${tarea.numero_Tarea}`);
     tareasPendientes.value.splice(index, 1);
   } catch (error) {
@@ -198,7 +194,7 @@ async function marcarComoHecha(index) {
 
 function onImageError(event) {
   if (event && event.target) {
-    // ⑥ Si falla la carga de la foto del usuario, ponemos la foto por defecto
+    // Si la foto no existe, carga la default
     event.target.src = 'usuariosfotos/manuel.png';
   }
 }
@@ -214,24 +210,25 @@ function logout() {
 }
 
 onMounted(async () => {
-  // ⑦ Llenamos menuItems de acuerdo al rol del usuario
+  // ⑤ Generamos el menú según rol
   if (userRole.value && roleMenuMapping[userRole.value]) {
     menuItems.value = roleMenuMapping[userRole.value];
   }
 
   const user = localStorage.getItem('loggedInUser')?.trim();
-  // ⑧ Solo a ciertos roles les pedimos las tareas pendientes
+  // ⑥ Ahora incluimos “Administrador” en el array:
   if (
-    [
-      'Empleado de Limpieza',
-      'Supervisor de Mantenimiento',
-      'Recepcionista',
-      'Gerente de Operaciones',
-    ].includes(userRole.value)
+    ['Administrador',
+     'Empleado de Limpieza',
+     'Supervisor de Mantenimiento',
+     'Recepcionista',
+     'Gerente de Operaciones']
+      .includes(userRole.value)
   ) {
+    console.log('🔔 Llamando a pendientes para:', user, 'rol:', userRole.value);
     try {
-      // ⑨ Llamamos al endpoint público en somee.com
       const res = await axios.get(`${API_BASE}/Tareas/pendientes/${user}`);
+      console.log('✅ Tareas pendientes recibidas:', res.data);
       tareasPendientes.value = res.data || [];
     } catch (error) {
       console.warn('❌ Error al obtener tareas pendientes:', error.message);
