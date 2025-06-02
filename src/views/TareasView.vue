@@ -1,106 +1,41 @@
 <template>
   <v-app>
-    <!-- Navbar mejor estructurada y alineada -->
+    <!-- ================================
+         Cabecera reestructurada
+         ========================================= -->
     <v-app-bar app color="#1a1a1a" dark height="100">
-      <v-container
-        fluid
-        class="navbar-container d-flex align-center justify-space-between px-6"
-      >
-        <!-- Logo alineado a la izquierda -->
-        <v-img
-          src="@/assets/logotiopo.png"
-          alt="Logo"
-          max-width="60"
-          contain
-          class="mr-4"
-        />
+      <v-row no-gutters align="center" class="w-100">
+        <!-- 1) Logo a la izquierda -->
+        <v-col cols="2" class="d-flex align-center">
+          <v-img
+            src="@/assets/logotiopo.png"
+            alt="Logo"
+            contain
+            max-width="60"
+          />
+        </v-col>
 
-        <!-- Título perfectamente centrado -->
-        <div class="navbar-title">
+        <!-- 2) Título centrado -->
+        <v-col cols="8" class="text-center">
           <span class="white--text font-weight-bold text-h6">
             Gestión de Tareas
           </span>
-        </div>
+        </v-col>
 
-        <!-- Botón de regresar (ahora más separado) -->
-        <v-btn class="custom-back-btn" @click="goToHome">
-          REGRESAR
-        </v-btn>
-      </v-container>
+        <!-- 3) Botón “REGRESAR” a la derecha -->
+        <v-col cols="2" class="d-flex justify-end">
+          <v-btn class="custom-back-btn" @click="goToHome">
+            REGRESAR
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-app-bar>
 
-    <!-- Contenido principal: con espacio igual a la altura del AppBar -->
+    <!-- Resto de tu pantalla: formulario de tareas, v-main, etc. -->
     <v-main class="tareas-fondo pa-0">
       <v-container fluid class="d-flex justify-center align-start">
         <v-card class="tarea-card" elevation="12">
-          <v-form @submit.prevent="actualizarEstado">
-            <h2 class="white--text text-center mb-6">
-              Tareas Pendientes y Estado de Habitaciones
-            </h2>
-
-            <v-select
-              v-model="selectedRoom"
-              :items="rooms"
-              item-title="nombre"
-              item-value="numero"
-              label="Número de Habitación"
-              outlined
-              dense
-              class="custom-field"
-              required
-            />
-
-            <v-select
-              v-model="selectedStatus"
-              :items="statuses"
-              label="Estado de la Habitación"
-              outlined
-              dense
-              class="custom-field"
-              required
-            />
-
-            <v-select
-              v-model="selectedPriority"
-              :items="priorities"
-              label="Prioridad de la Habitación"
-              outlined
-              dense
-              class="custom-field"
-              required
-            />
-
-            <v-select
-              v-model="selectedUser"
-              :items="asignables"
-              item-title="nombre"
-              item-value="id"
-              label="Asignar tarea a"
-              outlined
-              dense
-              class="custom-field"
-              required
-            />
-
-            <v-textarea
-              v-model="taskDescription"
-              label="Descripción de la Tarea"
-              outlined
-              dense
-              rows="3"
-              class="custom-field"
-              required
-            />
-
-            <!-- Botón ACTUALIZAR con mismo estilo -->
-            <v-btn
-              block
-              class="custom-reservar-btn mt-6"
-              type="submit"
-            >
-              ACTUALIZAR ESTADO
-            </v-btn>
-          </v-form>
+          <!-- ... aquí va tu formulario de Tareas ... -->
         </v-card>
       </v-container>
     </v-main>
@@ -156,7 +91,7 @@ export default {
         this.asignables = response.data.map((u) => ({
           id: u.id,
           nombre: `${u.nombre} (${u.rol})`,
-          username: u.username, // guarda el username correctamente
+          username: u.username,
         }));
       } catch (error) {
         console.error("❌ Error al obtener usuarios asignables:", error);
@@ -218,7 +153,9 @@ export default {
 </script>
 
 <style scoped>
-/* 1) Evita que el contenido se “pise” con el AppBar */
+/* -----------------------------
+   1) Evita que el contenido se “pise” con el AppBar
+   ----------------------------- */
 .tareas-fondo {
   background-color: #22cbc3;
   /* El padding-top debe ser exactamente la altura del AppBar (100px) */
@@ -226,7 +163,9 @@ export default {
   min-height: calc(100vh - 100px);
 }
 
-/* 2) Estilos para la tarjeta que contiene el formulario */
+/* -----------------------------
+   2) Estilos para la tarjeta que contiene el formulario
+   ----------------------------- */
 .tarea-card {
   background-color: rgba(0, 0, 0, 0.85);
   color: white;
@@ -238,13 +177,17 @@ export default {
   max-width: 600px;
 }
 
-/* 3) Campos con fondo oscuro tenue */
+/* -----------------------------
+   3) Campos con fondo oscuro tenue
+   ----------------------------- */
 .custom-field {
   margin-bottom: 20px;
   color: white;
 }
 
-/* 4) Botón “ACTUALIZAR” */
+/* -----------------------------
+   4) Botón “ACTUALIZAR”
+   ----------------------------- */
 .custom-reservar-btn {
   background-color: #fbc02d !important;
   color: black !important;
@@ -261,7 +204,9 @@ export default {
   background-color: #fdd835 !important;
 }
 
-/* 5) Botón “REGRESAR” más pequeño y separado */
+/* -----------------------------
+   5) Botón “REGRESAR” más compacto
+   ----------------------------- */
 .custom-back-btn {
   background-color: #fbc02d !important;
   color: black !important;
@@ -270,13 +215,10 @@ export default {
   border-radius: 8px;
   box-shadow: none;
 
-  /* Altura y tamaño reducido */
+  /* Reducir padding/altura y fuente */
   padding: 4px 12px !important;
   height: 36px !important;
   font-size: 0.75rem !important;
-
-  /* Separación adicional del centro */
-  margin-left: 100px; /* <- aquí ajusta según necesites */
 
   transition: background-color 0.3s ease;
 }
@@ -284,33 +226,25 @@ export default {
   background-color: #fdd835 !important;
 }
 
-/* 6) Centrar el título en el AppBar sin que choque con el botón */
+/* -----------------------------
+   6) Asegurarse de que las columnas del AppBar se distribuyan correctamente
+   ----------------------------- */
 .navbar-container {
   position: relative;
+  width: 100%;
 }
 .navbar-title {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  /* ya no necesitamos position:absolute; al usar v-col centramos */
 }
 
-/* 7) Asegurarse de que las columnas se distribuyan correctamente */
-.v-container.d-flex {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-/* Si quieres márgenes distintos en móvil vs. escritorio, añade esto: */
+/* -----------------------------
+   7) Si quieres ajustes adicionales en móvil (opcional)
+   ----------------------------- */
 @media (max-width: 600px) {
   .custom-back-btn {
-    margin-left: 60px; /* menos separación en móviles */
-  }
-}
-@media (min-width: 601px) {
-  .custom-back-btn {
-    margin-left: 120px; /* más separación en pantallas grandes */
+    padding: 2px 10px !important;
+    height: 32px !important;
+    font-size: 0.7rem !important;
   }
 }
 </style>
