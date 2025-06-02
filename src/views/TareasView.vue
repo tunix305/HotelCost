@@ -1,20 +1,14 @@
 <template>
   <v-app>
-    <!-- ================================
-         CABECERA: logo | título centrado | botón REGRESAR
-         ========================================= -->
     <v-app-bar app color="#1a1a1a" dark height="auto" class="navbar">
   <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
     <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="50" class="logo-img" />
     <h1 class="navbar-title white--text text-center">Gestión de Tareas</h1>
-    <v-btn class="regresar-btn" @click="goToHome">REGRESAR</v-btn>
+    <v-btn class="custom-back-btn" @click="goToHome">REGRESAR</v-btn>
   </v-container>
 </v-app-bar>
 
 
-    <!-- ================================
-         CONTENIDO PRINCIPAL: formulario de tareas
-         ========================================= -->
     <v-main class="tareas-fondo pa-0">
       <v-container fluid class="d-flex justify-center align-start">
         <v-card class="tarea-card" elevation="12">
@@ -294,4 +288,36 @@ export default {
     font-size: 0.7rem !important;
   }
 }
+/* Estilo base del título y logo */
+.navbar-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0;
+  flex: 1;
+}
+
+.logo-img {
+  max-width: 50px;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 600px) {
+  .navbar-title {
+    font-size: 1rem;
+    margin: 8px 0;
+    text-align: center;
+  }
+
+  .logo-img {
+    max-width: 40px;
+  }
+
+  .custom-back-btn {
+    font-size: 0.7rem !important;
+    padding: 4px 10px !important;
+    height: 32px !important;
+    margin-top: 6px;
+  }
+}
+
 </style>
