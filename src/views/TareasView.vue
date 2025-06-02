@@ -22,8 +22,8 @@
           </span>
         </div>
 
-        <!-- Botón de regresar -->
-        <v-btn class="custom-reservar-btn" @click="goToHome">
+        <!-- Botón de regresar (ahora más pequeño) -->
+        <v-btn class="custom-back-btn" @click="goToHome">
           REGRESAR
         </v-btn>
       </v-container>
@@ -195,6 +195,7 @@ export default {
           nuevaTarea
         );
         alert(response.data.message || "✅ Tarea guardada correctamente");
+        // Reiniciar campos
         this.selectedRoom = null;
         this.selectedStatus = null;
         this.selectedPriority = null;
@@ -244,7 +245,7 @@ export default {
   color: white;
 }
 
-/* 4) Botón “REGRESAR” / “ACTUALIZAR” */
+/* 4) Botón “ACTUALIZAR” */
 .custom-reservar-btn {
   background-color: #fbc02d !important;
   color: black !important;
@@ -261,7 +262,25 @@ export default {
   background-color: #fdd835 !important;
 }
 
-/* 5) Centrar el título en el AppBar sin que choque con el botón */
+/* 5) Botón “REGRESAR” ahora más pequeño */
+.custom-back-btn {
+  background-color: #fbc02d !important;
+  color: black !important;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-radius: 8px;
+  box-shadow: none;
+  /* Reducimos padding y tamaño de fuente */
+  padding: 4px 12px !important;
+  height: 36px !important;
+  font-size: 0.75rem !important;
+  transition: background-color 0.3s ease;
+}
+.custom-back-btn:hover {
+  background-color: #fdd835 !important;
+}
+
+/* 6) Centrar el título en el AppBar sin que choque con el botón */
 .navbar-container {
   position: relative;
 }
@@ -272,7 +291,7 @@ export default {
   transform: translate(-50%, -50%);
 }
 
-/* 6) Asegurarse de que las columnas se distribuyan correctamente */
+/* 7) Asegurarse de que las columnas se distribuyan correctamente */
 .v-container.d-flex {
   display: flex;
   justify-content: center;
