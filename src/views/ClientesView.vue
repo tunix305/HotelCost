@@ -3,11 +3,11 @@
     <!-- Navbar -->
     <v-app-bar app color="#1a1a1a" dark height="100">
       <v-container fluid class="d-flex align-center justify-space-between px-6">
-        <!-- Logo a la izquierda -->
+        <!-- Logo aumentado para que no se vea como miniatura -->
         <v-img
           src="@/assets/logotiopo.png"
           alt="Logo"
-          max-width="55"
+          class="logo-img"
           contain
         />
 
@@ -16,7 +16,7 @@
           Registro de Clientes
         </h1>
 
-        <!-- Botón REGRESAR a la derecha -->
+        <!-- Botón REGRESAR -->
         <v-btn class="regresar-btn" @click="goToHome">
           REGRESAR
         </v-btn>
@@ -120,14 +120,12 @@ export default {
   },
   methods: {
     goToHome() {
-      // Redirige a /home conservando los query params
       this.$router.push({
         path: '/home',
         query: { username: this.usuario, role: this.role }
       });
     },
     async registrarCliente() {
-      // Valida el formulario antes de enviar
       if (!this.$refs.form.validate()) return;
 
       const nuevo = {
@@ -147,7 +145,6 @@ export default {
         this.snackbarColor = 'red';
       } finally {
         this.snackbar = true;
-        // Limpiar campos y resetear validaciones
         this.nombre = '';
         this.apellido = '';
         this.telefono = '';
@@ -157,7 +154,6 @@ export default {
     }
   },
   mounted() {
-    // Obtiene los query params (username y role) para reenviarlos luego
     const { username, role } = this.$route.query;
     this.usuario = username || 'Invitado';
     this.role = role || 'Sin rol asignado';
@@ -166,11 +162,11 @@ export default {
 </script>
 
 <style scoped>
-/* Contenedor principal: deja espacio igual a la altura del AppBar */
+/* Ajustes generales del contenedor principal */
 .registro-container {
   background-color: #22cbc3;
   min-height: calc(100vh - 100px);
-  padding-top: 120px; /* Baja el card para que no choque con la navbar */
+  padding-top: 120px;
 }
 
 /* Tarjeta del formulario */
@@ -196,7 +192,7 @@ export default {
   column-gap: 12px;
 }
 
-/* Estilos para los V-Text-Fields en modo oscuro */
+/* TextFields en modo oscuro */
 .v-text-field >>> .v-input__control {
   background-color: rgba(255, 255, 255, 0.08);
   border-radius: 4px;
@@ -228,15 +224,29 @@ export default {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* Botón “REGRESAR” */
+/* ========== Ajuste del LOGO ========== */
+/* Por defecto, ocuparemos un ancho mayor para el logo */
+.logo-img {
+  max-width: 75px;  /* Aumentamos de 55px a 75px */
+  transition: max-width 0.3s ease;
+}
+
+/* En pantallas muy pequeñas, reducimos un poco pero sin que quede minúsculo */
+@media (max-width: 400px) {
+  .logo-img {
+    max-width: 60px;  /* Un poco más grande que antes */
+  }
+}
+
+/* ========== Botón “REGRESAR” ========== */
 .regresar-btn {
   background-color: #fdd835 !important;
   color: #1a1a1a !important;
   font-weight: bold;
   border-radius: 999px;
-  padding: 8px 16px;      /* Padding más ajustado */
-  font-size: 0.85rem;     /* Texto un poco más chico */
-  min-width: 100px;       /* Ancho mínimo para que no se encoja demasiado */
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  min-width: 100px;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .regresar-btn:hover {
@@ -244,7 +254,7 @@ export default {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* En pantallas muy angostas reducimos aún más el tamaño */
+/* En pantallas muy angostas, ajustamos un poco más el botón “REGRESAR” */
 @media (max-width: 400px) {
   .regresar-btn {
     padding: 6px 12px;
