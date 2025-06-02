@@ -1,46 +1,35 @@
 <template>
   <v-app>
-    <!-- ================================
-         CABECERA: logo | título centrado | botón REGRESAR
-         ========================================= -->
+    <!-- Navbar -->
     <v-app-bar app color="#1a1a1a" dark height="100">
-      <v-row no-gutters align="center" class="w-100">
-        <!-- 1) Logo a la izquierda -->
-        <v-col cols="2" class="d-flex align-center">
-          <v-img
-            src="@/assets/logotiopo.png"
-            alt="Logo"
-            contain
-            max-width="55"
-          />
-        </v-col>
+      <v-container fluid class="d-flex align-center justify-space-between px-6">
+        <!-- Logo a la izquierda -->
+        <v-img
+          src="@/assets/logotiopo.png"
+          alt="Logo"
+          max-width="55"
+          contain
+        />
 
-        <!-- 2) Título EN EL CENTRO -->
-        <v-col cols="8" class="text-center">
-          <span class="white--text text-h5 font-weight-bold">
-            Registro de Clientes
-          </span>
-        </v-col>
+        <!-- Título centrado -->
+        <h1 class="white--text text-h5 font-weight-bold flex-grow-1 text-center mb-0">
+          Registro de Clientes
+        </h1>
 
-        <!-- 3) Botón “REGRESAR” a la derecha -->
-        <v-col cols="2" class="d-flex justify-end">
-          <v-btn class="regresar-btn" @click="goToHome">
-            REGRESAR
-          </v-btn>
-        </v-col>
-      </v-row>
+        <!-- Botón REGRESAR a la derecha -->
+        <v-btn class="regresar-btn" @click="goToHome">
+          REGRESAR
+        </v-btn>
+      </v-container>
     </v-app-bar>
 
-    <!-- ================================
-         CONTENIDO PRINCIPAL: formulario de clientes
-         ========================================= -->
+    <!-- Contenido Principal -->
     <v-main class="registro-container">
       <v-container fluid class="d-flex justify-center">
         <v-card class="registro-card" elevation="12">
           <v-card-title class="registro-header text-h6 font-weight-medium text-center justify-center">
             Nuevo Cliente
           </v-card-title>
-
           <v-divider />
 
           <v-card-text>
@@ -112,78 +101,79 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from 'axios';
 
 export default {
-  name: "RegistroCliente",
+  name: 'RegistroCliente',
   data() {
     return {
-      nombre: "",
-      apellido: "",
-      telefono: "",
-      correo: "",
+      nombre: '',
+      apellido: '',
+      telefono: '',
+      correo: '',
       snackbar: false,
-      snackbarMessage: "",
-      snackbarColor: "green",
-      // Para leer username/role si hiciera falta:
-      usuario: "",
-      role: "",
+      snackbarMessage: '',
+      snackbarColor: 'green',
+      usuario: '',
+      role: ''
     };
   },
   methods: {
     goToHome() {
-      this.$router.push({ path: "/home", query: this.$route.query });
+      // Redirige a /home conservando los query params
+      this.$router.push({
+        path: '/home',
+        query: { username: this.usuario, role: this.role }
+      });
     },
     async registrarCliente() {
-      // Validar el formulario
+      // Valida el formulario antes de enviar
       if (!this.$refs.form.validate()) return;
 
       const nuevo = {
         nombre: this.nombre,
         apellido: this.apellido,
         numero: this.telefono,
-        correo: this.correo,
+        correo: this.correo
       };
 
       try {
-        const { data } = await axios.post(
-          "https://hotelcost.somee.com/api/Clientes",
-          nuevo
-        );
-        this.snackbarMessage = data.message || "Cliente registrado con éxito";
-        this.snackbarColor = "green";
-      } catch {
-        this.snackbarMessage = "Error al registrar cliente";
-        this.snackbarColor = "red";
+        const { data } = await axios.post('https://hotelcost.somee.com/api/Clientes', nuevo);
+        this.snackbarMessage = data.message || 'Cliente registrado con éxito';
+        this.snackbarColor = 'green';
+      } catch (err) {
+        console.error('❌ Error al registrar cliente:', err);
+        this.snackbarMessage = 'Error al registrar cliente';
+        this.snackbarColor = 'red';
       } finally {
         this.snackbar = true;
-        this.nombre = this.apellido = this.telefono = this.correo = "";
+        // Limpiar campos y resetear validaciones
+        this.nombre = '';
+        this.apellido = '';
+        this.telefono = '';
+        this.correo = '';
         this.$refs.form.reset();
       }
-    },
+    }
   },
   mounted() {
+    // Obtiene los query params (username y role) para reenviarlos luego
     const { username, role } = this.$route.query;
-    this.usuario = username || "Invitado";
-    this.role = role || "Sin rol asignado";
-  },
+    this.usuario = username || 'Invitado';
+    this.role = role || 'Sin rol asignado';
+  }
 };
 </script>
 
 <style scoped>
-/* ==================================================
-   1) El contenido no se “pise” con el AppBar
-   ================================================== */
+/* Contenedor principal: deja espacio igual a la altura del AppBar */
 .registro-container {
   background-color: #22cbc3;
   min-height: calc(100vh - 100px);
-  /* Damos un padding-top mayor para que el card baje un poco más */
-  padding-top: 120px;
+  padding-top: 120px; /* Baja el card para que no choque con la navbar */
 }
 
-/* ==================================================
-   2) Estilos para la tarjeta de registro
-   ================================================== */
+/* Tarjeta del formulario */
 .registro-card {
   background-color: rgba(0, 0, 0, 0.85);
   border-radius: 12px;
@@ -193,26 +183,20 @@ export default {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
 }
 
-/* ==================================================
-   3) Título “Nuevo Cliente”
-   ================================================== */
+/* Encabezado de la tarjeta */
 .registro-header {
   color: white;
   font-size: 1.2rem;
   padding-bottom: 6px;
 }
 
-/* ==================================================
-   4) Espaciado en las filas del formulario
-   ================================================== */
+/* Filas del formulario */
 .form-row {
   row-gap: 16px;
   column-gap: 12px;
 }
 
-/* ==================================================
-   5) Text-fields con fondo oscuro tenue
-   ================================================== */
+/* Estilos para los V-Text-Fields en modo oscuro */
 .v-text-field >>> .v-input__control {
   background-color: rgba(255, 255, 255, 0.08);
   border-radius: 4px;
@@ -223,7 +207,6 @@ export default {
 .v-text-field >>> input {
   color: white;
 }
-/* Cuando hay error, borde y mensaje en amarillo */
 .v-text-field--error >>> .v-input__control {
   border-color: #fdd835 !important;
 }
@@ -231,9 +214,7 @@ export default {
   color: #fdd835 !important;
 }
 
-/* ==================================================
-   6) Botón “REGISTRAR CLIENTE”
-   ================================================== */
+/* Botón “REGISTRAR CLIENTE” */
 .submit-btn {
   background-color: #fdd835 !important;
   color: #1a1a1a !important;
@@ -247,19 +228,28 @@ export default {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* ==================================================
-   7) Botón “REGRESAR” en el AppBar, ajustado
-   ================================================== */
+/* Botón “REGRESAR” */
 .regresar-btn {
   background-color: #fdd835 !important;
   color: #1a1a1a !important;
   font-weight: bold;
   border-radius: 999px;
-  padding: 10px 25px;
+  padding: 8px 16px;      /* Padding más ajustado */
+  font-size: 0.85rem;     /* Texto un poco más chico */
+  min-width: 100px;       /* Ancho mínimo para que no se encoja demasiado */
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .regresar-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* En pantallas muy angostas reducimos aún más el tamaño */
+@media (max-width: 400px) {
+  .regresar-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    min-width: 80px;
+  }
 }
 </style>
