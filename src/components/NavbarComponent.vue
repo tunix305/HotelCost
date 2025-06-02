@@ -1,23 +1,59 @@
 <template>
-  <v-app-bar app color="#1a1a1a" dark height="100" class="custom-navbar">
-    <v-container class="d-flex align-center justify-center">
-      <!-- Logo cargado con require() para que Webpack lo incluya -->
-      <v-img
-        :src="logoImage"
-        alt="Logo"
-        height="75"
-        width="75"
-        class="mr-6"
+  <v-app-bar app color="#1a1a1a" dark class="custom-navbar">
+    <!-- Versión móvil - Botón hamburguesa -->
+    <v-app-bar-nav-icon 
+      v-if="isMobile"
+      @click.stop="drawer = !drawer"
+      class="d-flex d-md-none"
+    >
+      <v-img 
+        :src="logoImage" 
+        alt="Menu" 
+        height="40" 
+        width="40"
       />
+    </v-app-bar-nav-icon>
 
+    <!-- Logo - Visible en todas las versiones -->
+    <v-img 
+      :src="logoImage" 
+      alt="Logo" 
+      height="60" 
+      width="60"
+      class="ml-2"
+      :class="{ 'mx-auto': isMobile }"
+    />
+
+    <!-- Espacio para centrar elementos en móvil -->
+    <v-spacer v-if="isMobile" />
+
+    <!-- Versión móvil - Iconos de notificación y perfil -->
+    <div v-if="isMobile" class="d-flex align-center">
+      <v-btn icon class="notification-btn mr-2" @click="dialogTareas = true">
+        <v-icon size="25" color="white">mdi-bell-outline</v-icon>
+        <v-badge
+          v-if="tareasPendientes.length > 0"
+          :content="tareasPendientes.length"
+          color="red accent-4"
+          overlap
+          bordered
+        />
+      </v-btn>
+
+      <v-avatar size="40" class="profile-avatar mr-2" @click="dialog = true">
+        <v-img :src="userImagePath" alt="Usuario" @error="onImageError" />
+      </v-avatar>
+    </div>
+
+    <!-- Versión escritorio - Menú completo -->
+    <div v-else class="d-flex align-center flex-grow-1">
       <v-spacer />
 
-      <!-- Botones de menú según rol -->
       <v-btn
         v-for="item in menuItems"
         :key="item.label"
         text
-        class="nav-button"
+        class="nav-button mx-1"
         @click="navigateTo(item.path)"
       >
         {{ item.label }}
@@ -25,128 +61,165 @@
 
       <v-spacer />
 
-      <!-- Botón de notificaciones -->
-      <v-btn icon class="notification-btn" @click="dialogTareas = true">
-        <v-icon size="30" color="white">mdi-bell-outline</v-icon>
+      <v-btn icon class="notification-btn mx-2" @click="dialogTareas = true">
+        <v-icon size="28" color="white">mdi-bell-outline</v-icon>
         <v-badge
           v-if="tareasPendientes.length > 0"
           :content="tareasPendientes.length"
           color="red accent-4"
           overlap
           bordered
-          class="notification-badge"
         />
       </v-btn>
 
-      <!-- Diálogo de tareas pendientes -->
-      <v-dialog
-        v-model="dialogTareas"
-        max-width="560"
-        transition="scale-transition"
-        persistent
-        scrollable
-      >
-        <v-card class="rounded-xl elevation-12 pa-4" style="background: #fffdfc">
-          <div class="d-flex align-center mb-3 pb-2 border-bottom">
-            <div>
-              <h3 class="text-h6 font-weight-bold">Tareas Pendientes</h3>
-              <span class="text-caption grey--text">
-                {{ tareasPendientes.length }} tareas activas
-              </span>
-            </div>
-          </div>
-
-          <v-scroll-y-transition group>
-            <v-list v-if="tareasPendientes.length" class="pa-0">
-              <v-list-item
-                v-for="(t, i) in tareasPendientes"
-                :key="i"
-                class="rounded-lg mb-3"
-                style="background: #f4f5fa"
-              >
-                <div class="d-flex justify-space-between align-start w-100">
-                  <div>
-                    <div class="text-body-1 font-weight-medium mb-1 text-primary">
-                      {{ t.descripcion }}
-                    </div>
-                    <div class="d-flex flex-wrap text-caption grey--text">
-                      <v-icon size="16" class="mr-1">mdi-bed</v-icon>
-                      Hab: {{ t.numero_Habitacion }}
-                      <v-icon size="16" class="ml-4 mr-1">mdi-alert</v-icon>
-                      Prioridad: {{ t.nivel_Prioridad }}
-                    </div>
-                  </div>
-                  <div class="d-flex align-center gap-2">
-                    <v-btn
-                      icon
-                      class="btn-circular gold-icon"
-                      @click="marcarComoHecha(i)"
-                      title="Marcar como hecha"
-                    >
-                      <v-icon color="#d4af37" size="26">mdi-check</v-icon>
-                    </v-btn>
-                  </div>
-                </div>
-              </v-list-item>
-            </v-list>
-
-            <div v-else class="text-center my-8">
-              <v-icon color="green" size="48">mdi-check-all</v-icon>
-              <p class="text-subtitle-1 mt-2">¡No tienes tareas pendientes!</p>
-              <p class="text-caption grey--text">Disfruta tu tiempo libre ✨</p>
-            </div>
-          </v-scroll-y-transition>
-
-          <div class="d-flex justify-space-between align-center mt-5 pt-3 border-top">
-            <span class="text-caption grey--text">Actualizado: justo ahora</span>
-            <v-btn @click="dialogTareas = false" class="boton-cerrar-gold">
-              Cerrar
-            </v-btn>
-          </div>
-        </v-card>
-      </v-dialog>
-
-      <!-- Avatar/Foto de usuario -->
-      <v-avatar size="80" class="profile-avatar" @click="dialog = true">
+      <v-avatar size="50" class="profile-avatar ml-2" @click="dialog = true">
         <v-img :src="userImagePath" alt="Usuario" @error="onImageError" />
       </v-avatar>
+    </div>
 
-      <!-- Diálogo de “Cerrar sesión” -->
-      <v-dialog v-model="dialog" max-width="400" persistent>
-        <v-card class="logout-card rounded-xl">
-          <v-card-title class="headline d-flex align-center justify-center">
-            <v-img :src="logoImage" alt="Logo" height="40" class="mr-2" />
-            ¿Cerrar sesión?
-          </v-card-title>
-          <v-card-text class="text-center">
-            Puedes volver a iniciar sesión en cualquier momento.
-          </v-card-text>
-          <v-card-actions class="dialog-actions">
-            <v-btn class="dialog-button logout rounded-pill" @click="logout">
-              Cerrar sesión
-            </v-btn>
-            <v-btn class="dialog-button cancel rounded-pill" @click="dialog = false">
-              Cancelar
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </v-container>
+    <!-- Menú lateral para móviles -->
+    <v-navigation-drawer
+      v-model="drawer"
+      temporary
+      fixed
+      right
+      width="280"
+      class="d-md-none"
+    >
+      <v-list dense nav>
+        <v-list-item>
+          <v-list-item-avatar>
+            <v-img :src="userImagePath" @error="onImageError" />
+          </v-list-item-avatar>
+          <v-list-item-content>
+            <v-list-item-title>{{ loggedInUser }}</v-list-item-title>
+            <v-list-item-subtitle>{{ userRole }}</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-divider class="my-2"></v-divider>
+
+        <v-list-item
+          v-for="item in menuItems"
+          :key="item.label"
+          @click="navigateTo(item.path)"
+        >
+          <v-list-item-icon>
+            <v-icon small>mdi-chevron-right</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{ item.label }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-divider class="my-2"></v-divider>
+
+        <v-list-item @click="logout">
+          <v-list-item-icon>
+            <v-icon color="error" small>mdi-logout</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title class="error--text">Cerrar sesión</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <!-- Diálogo de Tareas (compartido) -->
+    <v-dialog v-model="dialogTareas" max-width="560" scrollable>
+      <v-card class="rounded-xl">
+        <v-card-title class="d-flex align-center">
+          <v-icon large color="primary" class="mr-2">mdi-bell</v-icon>
+          <span>Tareas Pendientes</span>
+          <v-spacer />
+          <v-btn icon @click="dialogTareas = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text>
+          <v-list v-if="tareasPendientes.length > 0">
+            <v-list-item
+              v-for="(tarea, index) in tareasPendientes"
+              :key="index"
+              class="mb-2"
+            >
+              <v-list-item-content>
+                <v-list-item-title>{{ tarea.descripcion }}</v-list-item-title>
+                <v-list-item-subtitle class="d-flex align-center mt-1">
+                  <v-icon small class="mr-1">mdi-bed</v-icon>
+                  Hab. {{ tarea.numero_Habitacion }}
+                  <v-icon small class="ml-3 mr-1">mdi-alert</v-icon>
+                  {{ tarea.nivel_Prioridad }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+
+              <v-list-item-action>
+                <v-btn
+                  icon
+                  color="success"
+                  @click="marcarComoHecha(index)"
+                >
+                  <v-icon>mdi-check</v-icon>
+                </v-btn>
+              </v-list-item-action>
+            </v-list-item>
+          </v-list>
+
+          <div v-else class="text-center py-6">
+            <v-icon color="success" size="60">mdi-check-circle</v-icon>
+            <p class="subtitle-1 mt-3">¡No hay tareas pendientes!</p>
+          </div>
+        </v-card-text>
+
+        <v-card-actions class="justify-end">
+          <v-btn text @click="dialogTareas = false">Cerrar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Diálogo de Cerrar Sesión (compartido) -->
+    <v-dialog v-model="dialog" max-width="400">
+      <v-card class="rounded-xl">
+        <v-card-title class="justify-center">
+          <v-icon color="warning" large class="mr-2">mdi-alert</v-icon>
+          Confirmar
+        </v-card-title>
+
+        <v-card-text class="text-center">
+          ¿Estás seguro que deseas cerrar sesión?
+        </v-card-text>
+
+        <v-card-actions class="justify-center pb-4">
+          <v-btn
+            color="grey"
+            text
+            @click="dialog = false"
+            class="mr-4"
+          >
+            Cancelar
+          </v-btn>
+          <v-btn
+            color="primary"
+            @click="logout"
+          >
+            Cerrar Sesión
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app-bar>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { useDisplay } from 'vuetify';
 
-// ① Importamos el logo para que Webpack lo procese
-const logoImage = require('@/assets/logotiopo.png');
-
-// ② Base URL de producción (Somee)
-const API_BASE = 'https://www.hotelcost.somee.com/api';
-
+const { mobile: isMobile } = useDisplay();
 const router = useRouter();
+const drawer = ref(false);
 const dialog = ref(false);
 const dialogTareas = ref(false);
 const loggedInUser = ref(localStorage.getItem('loggedInUser') || 'Invitado');
@@ -154,196 +227,162 @@ const userRole = ref(localStorage.getItem('userRole') || 'Sin rol asignado');
 const menuItems = ref([]);
 const tareasPendientes = ref([]);
 
-// ③ Mapeo de roles a rutas de menú
+const logoImage = require('@/assets/logotiopo.png');
+
 const roleMenuMapping = {
   Administrador: [
-    { label: 'Gestión de Habitaciones', path: '/habitaciones' },
+    { label: 'Habitaciones', path: '/habitaciones' },
+    { label: 'Reservaciones', path: '/reservaciones' },
+    { label: 'Clientes', path: '/clientes' },
     { label: 'Tareas', path: '/tareas' },
     { label: 'Informes', path: '/informes' },
   ],
   'Empleado de Limpieza': [{ label: 'Tareas', path: '/tareas' }],
   'Supervisor de Mantenimiento': [
-    { label: 'Gestión de Habitaciones', path: '/habitaciones' },
+    { label: 'Habitaciones', path: '/habitaciones' },
     { label: 'Tareas', path: '/tareas' },
   ],
   'Gerente de Operaciones': [
-    { label: 'Gestión de Habitaciones', path: '/habitaciones' },
+    { label: 'Habitaciones', path: '/habitaciones' },
     { label: 'Tareas', path: '/tareas' },
     { label: 'Informes', path: '/informes' },
   ],
-  'Recepcionista': [
-    { label: 'Gestión de Habitaciones', path: '/habitaciones' },
-    { label: 'Tareas', path: '/tareas' },
+  Recepcionista: [
+    { label: 'Habitaciones', path: '/habitaciones' },
+    { label: 'Reservaciones', path: '/reservaciones' },
     { label: 'Clientes', path: '/clientes' },
   ],
 };
 
-// ④ Ruta relativa a la carpeta “docs/usuariosfotos/{username}.png”
-const userImagePath = ref(`usuariosfotos/${loggedInUser.value}.png`);
+const userImagePath = computed(() => {
+  const user = loggedInUser.value?.trim();
+  if (!user) return '/usuariosfotos/default.png';
+  
+  const cleanName = user.toLowerCase()
+    .replace(/\s+/g, '_')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  
+  return `/usuariosfotos/${cleanName}.png`;
+});
 
 async function marcarComoHecha(index) {
   const tarea = tareasPendientes.value[index];
   try {
-    await axios.delete(`${API_BASE}/Tareas/${tarea.numero_Tarea}`);
+    await axios.delete(`https://hotelcost.somee.com/api/Tareas/${tarea.numero_Tarea}`);
     tareasPendientes.value.splice(index, 1);
   } catch (error) {
-    console.error('❌ Error al eliminar tarea:', error);
+    console.error('Error al eliminar tarea:', error);
     alert('Error al eliminar la tarea. Intenta de nuevo.');
   }
 }
 
 function onImageError(event) {
-  if (event && event.target) {
-    // Si la foto no existe, carga la default
-    event.target.src = 'usuariosfotos/manuel.png';
+  if (event?.target) {
+    event.target.src = '/usuariosfotos/default.png';
   }
 }
 
 function navigateTo(path) {
   router.push(path);
+  drawer.value = false;
 }
 
 function logout() {
   localStorage.removeItem('loggedInUser');
   localStorage.removeItem('userRole');
-  router.push('/');
+  router.push('/login');
+  dialog.value = false;
 }
 
 onMounted(async () => {
-  // ⑤ Generamos el menú según rol
   if (userRole.value && roleMenuMapping[userRole.value]) {
     menuItems.value = roleMenuMapping[userRole.value];
   }
 
   const user = localStorage.getItem('loggedInUser')?.trim();
-  // ⑥ Ahora incluimos “Administrador” en el array:
-  if (
-    ['Administrador',
-     'Empleado de Limpieza',
-     'Supervisor de Mantenimiento',
-     'Recepcionista',
-     'Gerente de Operaciones']
-      .includes(userRole.value)
-  ) {
-    console.log('🔔 Llamando a pendientes para:', user, 'rol:', userRole.value);
+  const rolesConTareas = [
+    'Empleado de Limpieza',
+    'Supervisor de Mantenimiento',
+    'Recepcionista',
+    'Gerente de Operaciones',
+    'Administrador'
+  ];
+
+  if (user && rolesConTareas.includes(userRole.value)) {
     try {
-      const res = await axios.get(`${API_BASE}/Tareas/pendientes/${user}`);
-      console.log('✅ Tareas pendientes recibidas:', res.data);
+      const res = await axios.get(`https://hotelcost.somee.com/api/Tareas/pendientes/${user}`);
       tareasPendientes.value = res.data || [];
     } catch (error) {
-      console.warn('❌ Error al obtener tareas pendientes:', error.message);
+      console.warn('Error al obtener tareas pendientes:', error.message);
     }
   }
 });
 </script>
 
 <style scoped>
-.v-app-bar {
-  padding: 0 50px;
-  height: 100px !important;
-  background-color: #1a1a1a;
+.custom-navbar {
+  padding: 0 10px;
 }
-.v-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+/* Estilos para móviles */
+@media (max-width: 960px) {
+  .custom-navbar {
+    height: 70px !important;
+  }
+  
+  .profile-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    border: 1px solid white;
+  }
+  
+  .notification-btn {
+    margin-right: 8px;
+  }
 }
-.v-btn,
-.dialog-button {
-  font-size: 1.4rem;
-  text-transform: none;
-  font-weight: bold;
-  padding: 20px 30px;
-  transition: color 0.3s ease, box-shadow 0.3s ease;
+
+/* Estilos para escritorio */
+@media (min-width: 960px) {
+  .custom-navbar {
+    height: 80px !important;
+    padding: 0 20px;
+  }
+  
+  .nav-button {
+    font-size: 1rem;
+    padding: 12px 16px;
+    margin: 0 4px;
+  }
 }
-.v-btn:hover,
-.dialog-button:hover {
-  color: #d4af37;
-  box-shadow: 0px 3px 8px rgba(212, 175, 55, 0.8);
-}
-.dialog-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  padding: 20px;
-}
-.dialog-button.logout {
-  background-color: #000000;
-  color: white;
-  border-radius: 50px;
-  height: 60px;
-}
-.dialog-button.cancel {
-  background-color: transparent;
-  border: 2px solid #000000;
-  color: black;
-  border-radius: 50px;
-  height: 60px;
-}
-.logout-card {
-  border-radius: 25px;
-  overflow: hidden;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-}
+
+/* Estilos comunes */
 .profile-avatar {
   cursor: pointer;
   border: 2px solid white;
   transition: transform 0.2s;
 }
+
 .profile-avatar:hover {
   transform: scale(1.1);
 }
+
 .notification-btn {
-  margin-right: 16px;
   position: relative;
 }
-.notification-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-.border-bottom {
-  border-bottom: 1px solid #eee;
-}
-.border-top {
-  border-top: 1px solid #eee;
+
+.v-navigation-drawer {
+  background-color: #1a1a1a !important;
 }
 
-/* ✅ Botones modernos */
-.btn-circular {
-  width: 42px;
-  height: 42px;
-  min-width: 42px !important;
-  border-radius: 50%;
-  background-color: #fff8e1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+.v-list-item {
+  color: white !important;
 }
-.btn-circular:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+.v-list-item:hover {
+  background-color: #333 !important;
 }
-.gold-icon {
-  background-color: #fff8e1;
-}
-.gold-icon:hover {
-  background-color: #fce9b2;
-}
-.boton-cerrar-gold {
-  background: linear-gradient(to right, #d4af37, #f5d580);
-  color: black;
-  font-weight: bold;
-  padding: 10px 24px;
-  font-size: 16px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.boton-cerrar-gold:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+
+.v-divider {
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 </style>
