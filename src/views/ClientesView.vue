@@ -1,40 +1,43 @@
 <template>
   <v-app>
-    <!-- Navbar -->
-    <v-app-bar app color="#1a1a1a" dark height="100">
-      <v-container fluid class="d-flex align-center justify-space-between px-6">
-        <!-- Logo aumentado para que no se vea como miniatura -->
-        <v-img
-          src="@/assets/logotiopo.png"
-          alt="Logo" max-width="60"
+    <!-- Navbar optimizada para mobile -->
+    <v-app-bar app color="#1a1a1a" dark :height="mobile ? 80 : 100">
+      <v-container fluid class="d-flex align-center justify-space-between px-3 px-sm-6">
+        <v-img 
+          src="@/assets/logotiopo.png" 
+          alt="Logo" 
+          :max-width="mobile ? 45 : 55" 
           contain
+          class="mr-1"
         />
-
-        <!-- Título centrado -->
-        <h1 class="white--text text-h5 font-weight-bold flex-grow-1 text-center mb-0">
+        <h1 class="white--text text-subtitle-1 text-sm-h5 font-weight-bold flex-grow-1 text-center mb-0 px-1">
           Registro de Clientes
         </h1>
-
-        <!-- Botón REGRESAR -->
-        <v-btn class="regresar-btn" @click="goToHome">
-          REGRESAR
+        <v-btn 
+          class="regresar-btn" 
+          @click="goToHome"
+          :height="mobile ? 36 : 40"
+          :width="mobile ? 'auto' : 'auto'"
+        >
+          <span class="d-none d-sm-inline">REGRESAR</span>
+          <v-icon v-if="mobile" small>mdi-arrow-left</v-icon>
         </v-btn>
       </v-container>
     </v-app-bar>
 
-    <!-- Contenido Principal -->
+    <!-- Main Content optimizado para mobile -->
     <v-main class="registro-container">
-      <v-container fluid class="d-flex justify-center">
+      <v-container fluid class="d-flex justify-center pa-2 pa-sm-4">
         <v-card class="registro-card" elevation="12">
-          <v-card-title class="registro-header text-h6 font-weight-medium text-center justify-center">
+          <v-card-title class="registro-header text-subtitle-1 text-sm-h6 font-weight-medium text-center justify-center">
             Nuevo Cliente
           </v-card-title>
+          
           <v-divider />
-
-          <v-card-text>
+          <v-card-text class="px-2 px-sm-4">
             <v-form @submit.prevent="registrarCliente" ref="form">
-              <v-row class="form-row d-flex flex-column align-center" dense>
-                <v-col cols="12" md="6">
+              <v-row class="form-row" dense>
+                <v-col cols="12" sm="6">
                   <v-text-field
                     v-model="nombre"
                     label="Nombre"
@@ -43,9 +46,10 @@
                     dense
                     clearable
                     required
+                    :class="{'mobile-field': mobile}"
                   />
                 </v-col>
-                <v-col cols="12" md="6">
+                <v-col cols="12" sm="6">
                   <v-text-field
                     v-model="apellido"
                     label="Apellido"
@@ -54,9 +58,10 @@
                     dense
                     clearable
                     required
+                    :class="{'mobile-field': mobile}"
                   />
                 </v-col>
-                <v-col cols="12" md="6">
+                <v-col cols="12" sm="6">
                   <v-text-field
                     v-model="telefono"
                     label="Teléfono"
@@ -64,11 +69,12 @@
                     outlined
                     dense
                     clearable
-                    :rules="[v => /^\d{10}$/.test(v) || 'Debe tener 10 dígitos']"
+                    :rules="[v => /^\\d{10}$/.test(v) || 'Debe tener 10 dígitos']"
                     required
+                    :class="{'mobile-field': mobile}"
                   />
                 </v-col>
-                <v-col cols="12" md="6">
+                <v-col cols="12" sm="6">
                   <v-text-field
                     v-model="correo"
                     label="Correo Electrónico"
@@ -77,19 +83,24 @@
                     dense
                     clearable
                     type="email"
-                    :rules="[v => /.+@.+\..+/.test(v) || 'Email inválido']"
+                    :rules="[v => /.+@.+\\..+/.test(v) || 'Email inválido']"
                     required
+                    :class="{'mobile-field': mobile}"
                   />
                 </v-col>
-                <v-col cols="12" class="text-center mt-4">
-                  <v-btn type="submit" class="submit-btn" large>
+                <v-col cols="12" class="text-center mt-2 mt-sm-4">
+                  <v-btn 
+                    type="submit" 
+                    class="submit-btn" 
+                    :large="!mobile"
+                    :block="mobile"
+                  >
                     REGISTRAR CLIENTE
                   </v-btn>
                 </v-col>
               </v-row>
             </v-form>
           </v-card-text>
-
           <v-snackbar v-model="snackbar" :timeout="3000" :color="snackbarColor">
             {{ snackbarMessage }}
           </v-snackbar>
@@ -101,9 +112,14 @@
 
 <script>
 import axios from 'axios';
+import { useDisplay } from 'vuetify';
 
 export default {
   name: 'RegistroCliente',
+  setup() {
+    const { mobile } = useDisplay();
+    return { mobile };
+  },
   data() {
     return {
       nombre: '',
@@ -113,85 +129,81 @@ export default {
       snackbar: false,
       snackbarMessage: '',
       snackbarColor: 'green',
-      usuario: '',
-      role: ''
     };
   },
   methods: {
     goToHome() {
-      this.$router.push({
-        path: '/home',
-        query: { username: this.usuario, role: this.role }
-      });
+      this.$router.push({ path: '/home', query: this.$route.query });
     },
     async registrarCliente() {
       if (!this.$refs.form.validate()) return;
-
       const nuevo = {
         nombre: this.nombre,
         apellido: this.apellido,
         numero: this.telefono,
-        correo: this.correo
+        correo: this.correo,
       };
-
       try {
         const { data } = await axios.post('https://hotelcost.somee.com/api/Clientes', nuevo);
         this.snackbarMessage = data.message || 'Cliente registrado con éxito';
         this.snackbarColor = 'green';
-      } catch (err) {
-        console.error('❌ Error al registrar cliente:', err);
+      } catch {
         this.snackbarMessage = 'Error al registrar cliente';
         this.snackbarColor = 'red';
       } finally {
         this.snackbar = true;
-        this.nombre = '';
-        this.apellido = '';
-        this.telefono = '';
-        this.correo = '';
+        this.nombre = this.apellido = this.telefono = this.correo = '';
         this.$refs.form.reset();
       }
-    }
+    },
   },
   mounted() {
     const { username, role } = this.$route.query;
     this.usuario = username || 'Invitado';
     this.role = role || 'Sin rol asignado';
-  }
+  },
 };
 </script>
 
 <style scoped>
-/* Ajustes generales del contenedor principal */
 .registro-container {
   background-color: #22cbc3;
-  min-height: calc(100vh - 100px);
-  padding-top: 120px;
+  min-height: calc(100vh - 80px);
+  padding-top: 20px;
 }
 
-/* Tarjeta del formulario */
+@media (min-width: 600px) {
+  .registro-container {
+    padding-top: 40px;
+    min-height: calc(100vh - 100px);
+  }
+}
+
 .registro-card {
   background-color: rgba(0, 0, 0, 0.85);
   border-radius: 12px;
   max-width: 850px;
-  width: 90%;
-  padding: 30px 20px;
+  width: 100%;
+  padding: 20px 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
 }
 
-/* Encabezado de la tarjeta */
+@media (min-width: 600px) {
+  .registro-card {
+    padding: 30px 20px;
+  }
+}
+
 .registro-header {
   color: white;
-  font-size: 1.2rem;
   padding-bottom: 6px;
 }
 
-/* Filas del formulario */
-.form-row {
-  row-gap: 16px;
-  column-gap: 12px;
+.mobile-field {
+  font-size: 0.9rem;
 }
 
-/* TextFields en modo oscuro */
+/* Custom text-field styling */
 .v-text-field >>> .v-input__control {
   background-color: rgba(255, 255, 255, 0.08);
   border-radius: 4px;
@@ -209,56 +221,45 @@ export default {
   color: #fdd835 !important;
 }
 
-/* Botón “REGISTRAR CLIENTE” */
 .submit-btn {
   background-color: #fdd835 !important;
   color: #1a1a1a !important;
   font-weight: bold !important;
   border-radius: 6px !important;
-  padding: 10px 32px !important;
+  padding: 8px 16px !important;
   transition: transform 0.2s, box-shadow 0.2s;
+  min-width: 200px;
 }
+
+@media (min-width: 600px) {
+  .submit-btn {
+    padding: 10px 32px !important;
+  }
+}
+
 .submit-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* ========== Ajuste del LOGO ========== */
-/* Por defecto, ocuparemos un ancho mayor para el logo */
-.logo-img {
-  max-width: 75px;  /* Aumentamos de 55px a 75px */
-  transition: max-width 0.3s ease;
-}
-
-/* En pantallas muy pequeñas, reducimos un poco pero sin que quede minúsculo */
-@media (max-width: 400px) {
-  .logo-img {
-    max-width: 60px;  /* Un poco más grande que antes */
-  }
-}
-
-/* ========== Botón “REGRESAR” ========== */
 .regresar-btn {
   background-color: #fdd835 !important;
   color: #1a1a1a !important;
   font-weight: bold;
   border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 0.85rem;
-  min-width: 100px;
+  padding: 0 12px;
+  min-width: auto;
   transition: transform 0.2s, box-shadow 0.2s;
 }
+
+@media (min-width: 600px) {
+  .regresar-btn {
+    padding: 0 25px;
+  }
+}
+
 .regresar-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* En pantallas muy angostas, ajustamos un poco más el botón “REGRESAR” */
-@media (max-width: 400px) {
-  .regresar-btn {
-    padding: 6px 12px;
-    font-size: 0.75rem;
-    min-width: 80px;
-  }
 }
 </style>
