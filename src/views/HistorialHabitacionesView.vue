@@ -5,7 +5,7 @@
   <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
     <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="50" class="logo-img" />
     <h1 class="navbar-title white--text text-center">Historial de Habitaciones Reservadas</h1>
-    <v-btn class="regresar-btn" @click="goToHome">REGRESAR</v-btn>
+    <v-btn class="regresar-btn" @click="goBack">REGRESAR</v-btn>
   </v-container>
 </v-app-bar>
 
