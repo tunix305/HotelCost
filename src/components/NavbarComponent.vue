@@ -156,8 +156,10 @@ const tareasPendientes = ref([]);
 
 // ③ Mapeo de roles a rutas de menú
 const roleMenuMapping = {
-  Administrador: [
-    { label: 'Gestión de Habitaciones', path: '/habitaciones' },
+   Administrador: [
+    { label: 'Habitaciones', path: '/habitaciones' },
+    { label: 'Reservaciónes', path: '/resevaciones' },
+    { label: 'Clientes', path: '/clientes' },
     { label: 'Tareas', path: '/tareas' },
     { label: 'Informes', path: '/informes' },
   ],
@@ -172,8 +174,8 @@ const roleMenuMapping = {
     { label: 'Informes', path: '/informes' },
   ],
   'Recepcionista': [
-    { label: 'Gestión de Habitaciones', path: '/habitaciones' },
-    { label: 'Tareas', path: '/tareas' },
+    { label: 'Habitaciones', path: '/habitaciones' },
+    { label: 'Reservaciónes', path: '/resevaciones' },
     { label: 'Clientes', path: '/clientes' },
   ],
 };
