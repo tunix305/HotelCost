@@ -22,7 +22,7 @@
           </span>
         </div>
 
-        <!-- Botón de regresar (ahora más pequeño) -->
+        <!-- Botón de regresar (ahora más separado) -->
         <v-btn class="custom-back-btn" @click="goToHome">
           REGRESAR
         </v-btn>
@@ -195,7 +195,6 @@ export default {
           nuevaTarea
         );
         alert(response.data.message || "✅ Tarea guardada correctamente");
-        // Reiniciar campos
         this.selectedRoom = null;
         this.selectedStatus = null;
         this.selectedPriority = null;
@@ -262,7 +261,7 @@ export default {
   background-color: #fdd835 !important;
 }
 
-/* 5) Botón “REGRESAR” ahora más pequeño */
+/* 5) Botón “REGRESAR” más pequeño y separado */
 .custom-back-btn {
   background-color: #fbc02d !important;
   color: black !important;
@@ -270,10 +269,15 @@ export default {
   text-transform: uppercase;
   border-radius: 8px;
   box-shadow: none;
-  /* Reducimos padding y tamaño de fuente */
+
+  /* Altura y tamaño reducido */
   padding: 4px 12px !important;
   height: 36px !important;
   font-size: 0.75rem !important;
+
+  /* Separación adicional del centro */
+  margin-left: 100px; /* <- aquí ajusta según necesites */
+
   transition: background-color 0.3s ease;
 }
 .custom-back-btn:hover {
@@ -296,5 +300,17 @@ export default {
   display: flex;
   justify-content: center;
   align-items: flex-start;
+}
+
+/* Si quieres márgenes distintos en móvil vs. escritorio, añade esto: */
+@media (max-width: 600px) {
+  .custom-back-btn {
+    margin-left: 60px; /* menos separación en móviles */
+  }
+}
+@media (min-width: 601px) {
+  .custom-back-btn {
+    margin-left: 120px; /* más separación en pantallas grandes */
+  }
 }
 </style>
