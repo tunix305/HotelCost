@@ -9,7 +9,6 @@
   </v-container>
 </v-app-bar>
 
-
     <!-- Main con fondo turquesa y cards más abajo -->
     <v-main class="reservas-main pa-0">
       <v-container fluid class="pa-0">
@@ -422,6 +421,36 @@ body,
 
   .logo-img {
     max-width: 40px;
+  }
+}
+.navbar-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0;
+  flex: 1;
+}
+
+.logo-img {
+  max-width: 50px;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 600px) {
+  .navbar-title {
+    font-size: 1rem;
+    margin: 8px 0;
+    text-align: center;
+  }
+
+  .logo-img {
+    max-width: 40px;
+  }
+
+  .regresar-btn {
+    font-size: 0.7rem !important;
+    padding: 4px 10px !important;
+    height: 32px !important;
+    margin-top: 6px;
   }
 }
 
