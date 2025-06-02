@@ -333,11 +333,10 @@ body,
 <style scoped>
 .reservas-main {
   background-color: #22cbc3 !important;
-  /* El padding-top se ajusta exactamente a la altura del AppBar (80px),
-     así el contenido comienza justo debajo y no “choca” con el REGRESAR */
+  padding-top: 120px !important; /* Aumentamos este valor */
   min-height: calc(100vh - 80px);
-  padding-top: 80px;
 }
+
 
 .cards-wrapper {
   max-width: 1200px;
@@ -452,6 +451,19 @@ body,
     height: 32px !important;
     margin-top: 6px;
   }
+}
+.regresar-btn {
+  background-color: #fbc02d !important;
+  color: #1a1a1a !important;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-radius: 8px;
+  padding: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.regresar-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
 </style>
