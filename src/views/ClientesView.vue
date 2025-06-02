@@ -1,15 +1,14 @@
 <template>
   <v-app>
     <!-- Navbar -->
-    <v-app-bar app color="#1a1a1a" dark height="100">
-      <v-container fluid class="d-flex align-center justify-space-between px-6">
-        <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="55" />
-        <h1 class="white--text text-h5 font-weight-bold flex-grow-1 text-center mb-0">
-          Registro de Clientes
-        </h1>
-        <v-btn class="regresar-btn" @click="goToHome">REGRESAR</v-btn>
-      </v-container>
-    </v-app-bar>
+    <v-app-bar app color="#1a1a1a" dark height="auto" class="navbar">
+  <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
+    <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="50" class="logo-img" />
+    <h1 class="navbar-title white--text text-center">Registro de Clientes</h1>
+    <v-btn class="regresar-btn" @click="goToHome">REGRESAR</v-btn>
+  </v-container>
+</v-app-bar>
+
 
     <!-- Main Content -->
     <v-main class="registro-container">
@@ -206,4 +205,32 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
   }
+  .navbar-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0;
+  flex: 1;
+}
+
+.logo-img {
+  max-width: 50px;
+}
+
+@media (max-width: 600px) {
+  .navbar-title {
+    font-size: 1rem;
+    margin: 8px 0;
+  }
+
+  .regresar-btn {
+    font-size: 0.75rem !important;
+    padding: 6px 16px !important;
+    min-width: unset;
+  }
+
+  .logo-img {
+    max-width: 40px;
+  }
+}
+
 </style>
