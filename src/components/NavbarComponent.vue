@@ -231,13 +231,26 @@ function navigateTo(path) {
 async function marcarComoHecha(index) {
   const tarea = tareasPendientes.value[index];
   try {
+    // 1) Eliminar la tarea en la API
     await axios.delete(`${API_BASE}/Tareas/${tarea.numero_Tarea}`);
+
+    // 2) Actualizar el estado de la habitación a "Disponible"
+    await axios.put(
+      `${API_BASE}/Habitaciones/ActualizarEstado`,
+      {
+        Numero_Habitacion: tarea.numero_Habitacion, // p. ej. 102
+        Estado_Actual: "Disponible"
+      }
+    );
+
+    // 3) Eliminar la tarea del arreglo local para refrescar la UI
     tareasPendientes.value.splice(index, 1);
   } catch (error) {
-    console.error('❌ Error al eliminar tarea:', error);
-    alert('Error al eliminar la tarea. Intenta de nuevo.');
+    console.error('❌ Error al procesar la tarea o actualizar habitación:', error);
+    alert('Ocurrió un error al marcar la tarea o al actualizar la habitación. Intenta de nuevo.');
   }
 }
+
 
 function onImageError(event) {
   if (event && event.target) {
