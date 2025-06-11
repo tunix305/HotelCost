@@ -88,7 +88,7 @@ export default {
   computed: {
     userRoleMapping() {
       return {
-        petra: 'Administrador',
+        petra: 'Admin',
         manuel: 'Supervisor de Mantenimiento',
         edgar: 'Recepcionista',
         luis: 'Empleado de Limpieza',
@@ -107,36 +107,40 @@ export default {
         return;
       }
 
-      // Hacer el POST al backend usando la variable de entorno de Vue CLI
+      // Determinar el rol basado en el usuario
+      const role = this.userRoleMapping[usernameLower] || 'Recepcionista'; // Valor por defecto
+
       try {
         const response = await axios.post(
           `${process.env.VUE_APP_API_URL}/Users/login`,
           {
             username: this.username,
             password: this.password,
+            role: role // Enviamos el rol determinado automáticamente
           }
         );
 
-        // Obtener el rol del mapeo de usuarios o del response del backend
-        const userRole = this.userRoleMapping[usernameLower] || response.data.role || 'Usuario';
-
-        // Si todo sale bien, guardamos token y redirigimos
+        // Guardar datos y redirigir
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('loggedInUser', usernameLower);
-        localStorage.setItem('userRole', userRole);
+        localStorage.setItem('userRole', role);
 
         this.$router.push({
           path: '/home',
           query: {
             username: this.username,
-            role: userRole,
+            role: role,
           },
         });
       } catch (error) {
-        // Mostrar mensaje de error en snackbar
         console.error('❌ Error en login:', error.response || error);
         this.snackbarMessage = error.response?.data?.message || 'Error en autenticación';
         this.snackbar = true;
+        
+        // Manejar específicamente el error de rol incorrecto
+        if (error.response?.status === 403) {
+          this.snackbarMessage = 'No tienes permisos para acceder con este usuario';
+        }
       }
     },
   },
