@@ -32,39 +32,46 @@
             :sort-desc="[true]"
             :items-per-page="10"
           >
-           <template #itemid_Habitacion="{ item }">
-  <span class="font-weight-bold">ID:</span> {{ item.id_Habitacion || 'N/A' }}
-</template>
+            <template #item.id_Habitacion="{ item }">
+              <span class="font-weight-bold">ID:</span> {{ item.id_Habitacion || 'N/A' }}
+            </template>
 
-<template #item.numero_Habitacion="{ item }">
-  <span class="font-weight-bold">Habitación:</span> {{ item.numero_Habitacion || 'N/A' }}
-</template>
+            <template #item.numero_Habitacion="{ item }">
+              <span class="font-weight-bold">Habitación:</span> {{ item.numero_Habitacion || 'N/A' }}
+            </template>
 
-<template #item.fecha_Entrada="{ item }">
-  <div>
-    <span class="font-weight-bold">Entrada:</span><br>
-    {{ formatDate(item.fecha_Entrada) || 'N/A' }}
-  </div>
-</template>
+            <template #item.fecha_Entrada="{ item }">
+              <div>
+                <span class="font-weight-bold">Entrada:</span><br />
+                {{
+                  item.estado_Anterior === 'Disponible' && item.estado_Nuevo === 'Ocupada'
+                    ? formatDate(item.fecha_Cambio)
+                    : 'N/A'
+                }}
+              </div>
+            </template>
 
-<template #item.fecha_Salida="{ item }">
-  <div>
-    <span class="font-weight-bold">Salida:</span><br>
-    {{ formatDate(item.fecha_Salida) || 'N/A' }}
-  </div>
-</template>
+            <template #item.fecha_Salida="{ item }">
+              <div>
+                <span class="font-weight-bold">Salida:</span><br />
+                {{
+                  item.estado_Anterior === 'Ocupada' && item.estado_Nuevo === 'Disponible'
+                    ? formatDate(item.fecha_Cambio)
+                    : 'N/A'
+                }}
+              </div>
+            </template>
 
-<template #item.fecha_Cambio="{ item }">
-  <div>
-    <span class="font-weight-bold">Reserva:</span><br>
-    {{ formatDate(item.fecha_Cambio) || 'N/A' }}
-  </div>
-</template>
+            <template #item.fecha_Cambio="{ item }">
+              <div>
+                <span class="font-weight-bold">Reserva:</span><br />
+                {{ formatDate(item.fecha_Cambio) || 'N/A' }}
+              </div>
+            </template>
 
-<template #item.usuario_Modificacion="{ item }">
-  <span class="font-weight-bold">Usuario:</span> {{ item.usuario_Modificacion || 'N/A' }}
-</template>
-
+            <template #item.usuario_Modificacion="{ item }">
+              <span class="font-weight-bold">Usuario:</span> {{ item.usuario_Modificacion || 'N/A' }}
+            </template>
           </v-data-table>
         </v-card>
       </v-container>
@@ -82,12 +89,12 @@ const route = useRoute();
 const router = useRouter();
 
 const headers = [
-  { text: 'ID Habitación', value: 'id_Habitacion', width: '120px' },
-  { text: 'Número', value: 'numero_Habitacion', width: '120px' },
-  { text: 'Fechas de Estancia', value: 'fecha_Entrada', width: '200px' },
-  { text: 'Fecha de Salida', value: 'fecha_Salida', width: '200px' },
-  { text: 'Fecha de Reserva', value: 'fecha_Cambio', width: '200px' },
-  { text: 'Usuario', value: 'usuario_Modificacion', width: '150px' }
+  { text: 'ID Habitación', value: 'id_Habitacion' },
+  { text: 'Número', value: 'numero_Habitacion' },
+  { text: 'Entrada', value: 'fecha_Entrada' },
+  { text: 'Salida', value: 'fecha_Salida' },
+  { text: 'Reserva', value: 'fecha_Cambio' },
+  { text: 'Usuario', value: 'usuario_Modificacion' }
 ];
 
 const goBack = () => {
