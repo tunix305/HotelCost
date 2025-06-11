@@ -16,6 +16,7 @@
             density="comfortable"
             class="custom-field"
             required
+            @input="handleUsernameChange"
           />
           <v-text-field
             v-model="password"
@@ -25,6 +26,17 @@
             density="comfortable"
             class="custom-field"
             required
+          />
+          <v-select
+            v-model="role"
+            :items="roles"
+            label="Rol"
+            variant="outlined"
+            density="comfortable"
+            class="custom-field"
+            :disabled="isAdmin"
+            :required="!isAdmin"
+            v-if="!isAdmin"
           />
 
           <v-btn class="login-button mt-4" block type="submit" size="large">INICIAR SESIÓN</v-btn>
@@ -79,7 +91,13 @@ export default {
     return {
       username: '',
       password: '',
-      role: '', // Mantenemos esta variable pero la manejaremos diferente
+      role: '',
+      roles: [
+        'Recepcionista',
+        'Empleado de Limpieza',
+        'Supervisor de Mantenimiento',
+        'Gerente de Operaciones',
+      ],
       snackbar: false,
       snackbarMessage: '',
       showErrorDialog: false,
@@ -87,28 +105,43 @@ export default {
     };
   },
   computed: {
-    userRoleMapping() {
-      return {
-        petra: 'Admin', // Petra siempre será Admin
-        manuel: 'Supervisor de Mantenimiento',
-        edgar: 'Recepcionista',
-        luis: 'Empleado de Limpieza', 
-        wilver: 'Gerente de Operaciones',
-      };
-    },
     isAdmin() {
       return this.username.toLowerCase() === 'petra';
+    },
+    userRoleMapping() {
+      return {
+        petra: 'Admin',
+        manuel: 'Supervisor de Mantenimiento',
+        edgar: 'Recepcionista',
+        luis: 'Empleado de Limpieza',
+        wilver: 'Gerente de Operaciones',
+      };
     }
   },
   methods: {
+    handleUsernameChange() {
+      // Auto-seleccionar rol cuando el usuario coincide con el mapeo
+      const usernameLower = this.username.toLowerCase();
+      if (this.userRoleMapping[usernameLower] && !this.isAdmin) {
+        this.role = this.userRoleMapping[usernameLower];
+      }
+    },
     async login() {
       const usernameLower = this.username.toLowerCase();
 
-      // Para el admin, forzamos el rol 'Admin' sin importar lo que seleccione
-      const roleToSend = this.isAdmin ? 'Admin' : this.role;
-
+      // Validar campos vacíos
       if (!this.username || !this.password || (!this.isAdmin && !this.role)) {
         this.snackbarMessage = 'Por favor, completa todos los campos.';
+        this.snackbar = true;
+        return;
+      }
+
+      // Determinar el rol a enviar (Admin para petra, rol seleccionado para otros)
+      const roleToSend = this.isAdmin ? 'Admin' : this.role;
+
+      // Validar que el rol coincida para usuarios no admin
+      if (!this.isAdmin && this.userRoleMapping[usernameLower] !== this.role) {
+        this.snackbarMessage = 'El rol seleccionado no corresponde a este usuario';
         this.snackbar = true;
         return;
       }
@@ -119,10 +152,11 @@ export default {
           {
             username: this.username,
             password: this.password,
-            role: roleToSend // Enviamos 'Admin' si es petra, o el rol seleccionado
+            role: roleToSend
           }
         );
 
+        // Guardar datos y redirigir
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('loggedInUser', usernameLower);
         localStorage.setItem('userRole', roleToSend);
@@ -132,6 +166,10 @@ export default {
         console.error('Error en login:', error);
         this.snackbarMessage = error.response?.data?.message || 'Error en autenticación';
         this.snackbar = true;
+        
+        if (error.response?.status === 403) {
+          this.snackbarMessage = 'No tienes permisos para acceder con este usuario';
+        }
       }
     }
   }
@@ -139,57 +177,57 @@ export default {
 </script>
 
 <style scoped>
-  .login-container {
-    height: 100vh;
-    background-color: #22cbc3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.login-container {
+  height: 100vh;
+  background-color: #22cbc3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .habitaciones-style-card {
-    background-color: #005f73;
-    color: white;
-    border-radius: 12px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    width: 100%;
-    max-width: 500px;
-    backdrop-filter: blur(4px);
-  }
+.habitaciones-style-card {
+  background-color: #005f73;
+  color: white;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 500px;
+  backdrop-filter: blur(4px);
+}
 
-  .custom-field .v-input__control {
-    background-color: #005f73 !important;
-    color: white !important;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-  }
+.custom-field .v-input__control {
+  background-color: #005f73 !important;
+  color: white !important;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
 
-  .custom-field input {
-    color: white !important;
-  }
+.custom-field input {
+  color: white !important;
+}
 
-  .custom-field .v-label {
-    color: white !important;
-  }
+.custom-field .v-label {
+  color: white !important;
+}
 
-  .login-button {
-    background-color: #fcd34d;
-    color: #333;
-    font-weight: bold;
-    text-transform: uppercase;
-    border-radius: 30px;
-    letter-spacing: 1px;
-  }
+.login-button {
+  background-color: #fcd34d;
+  color: #333;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-radius: 30px;
+  letter-spacing: 1px;
+}
 
-  .help-text {
-    font-size: 0.9rem;
-    color: #ffffff;
-    text-decoration: underline;
-    cursor: pointer;
-  }
+.help-text {
+  font-size: 0.9rem;
+  color: #ffffff;
+  text-decoration: underline;
+  cursor: pointer;
+}
 
-  .help-text:hover {
-    color: #fcd34d;
-  }
+.help-text:hover {
+  color: #fcd34d;
+}
 </style>
