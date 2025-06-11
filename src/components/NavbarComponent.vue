@@ -197,7 +197,7 @@ const tareasPendientes = ref([]);
 
 // ③ Mapeo de roles → rutas del menú (escritorio y drawer)
 const roleMenuMapping = {
-  Administrador: [
+   Admin:[
     { label: 'Habitaciones', path: '/habitaciones' },
     { label: 'Reservaciónes', path: '/resevaciones' },
     { label: 'Clientes', path: '/clientes' },
