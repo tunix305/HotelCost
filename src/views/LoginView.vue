@@ -26,17 +26,6 @@
             class="custom-field"
             required
           />
-          <v-select
-            v-model="role"
-            :items="roles"
-            label="Rol"
-            variant="outlined"
-            density="comfortable"
-            class="custom-field"
-            :disabled="isAdmin"
-            :required="!isAdmin"
-            v-if="!isAdmin"
-          />
 
           <v-btn class="login-button mt-4" block type="submit" size="large">INICIAR SESIÓN</v-btn>
         </v-form>
@@ -77,17 +66,6 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-
-      <v-dialog v-model="showRoleErrorDialog" max-width="400">
-        <v-card>
-          <v-card-title class="headline">Rol Erróneo</v-card-title>
-          <v-card-text>El rol seleccionado no corresponde al usuario ingresado.</v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn color="primary" text @click="showRoleErrorDialog = false">Cerrar</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
     </v-container>
   </v-app>
 </template>
@@ -101,79 +79,34 @@ export default {
     return {
       username: '',
       password: '',
-      role: '',
-      roles: [
-        'Recepcionista',
-        'Empleado de Limpieza',
-        'Supervisor de Mantenimiento',
-        'Gerente de Operaciones',
-      ],
       snackbar: false,
       snackbarMessage: '',
       showErrorDialog: false,
       showPasswordDialog: false,
-      showRoleErrorDialog: false,
     };
-  },
-  computed: {
-    isAdmin() {
-      return this.username.toLowerCase() === 'petra';
-    },
-    userRoleMapping() {
-      return {
-        petra: 'Administrador',
-        manuel: 'Supervisor de Mantenimiento',
-        edgar: 'Recepcionista',
-        luis: 'Empleado de Limpieza',
-        wilver: 'Gerente de Operaciones',
-      };
-    },
   },
   methods: {
     async login() {
-      const usernameLower = this.username.toLowerCase();
-
-      // Validar campos vacíos
-      if (!this.username || !this.password || (!this.isAdmin && !this.role)) {
-        this.snackbarMessage = 'Por favor, completa todos los campos.';
+      if (!this.username || !this.password) {
+        this.snackbarMessage = 'Por favor, completa usuario y contraseña.';
         this.snackbar = true;
         return;
       }
 
-      // Validar que el rol coincida con el usuario
-      if (
-        this.userRoleMapping[usernameLower] &&
-        this.userRoleMapping[usernameLower] !== (this.isAdmin ? 'Administrador' : this.role)
-      ) {
-        this.showRoleErrorDialog = true;
-        return;
-      }
-
-      // Hacer el POST al backend usando la variable de entorno de Vue CLI
       try {
-        const response = await axios.post(
-          `${process.env.VUE_APP_API_URL}/Users/login`,
-          {
-            username: this.username,
-            password: this.password,
-            role: this.isAdmin ? 'Administrador' : this.role,
-          }
-        );
+        const response = await axios.post(`${process.env.VUE_APP_API_URL}/Users/login`, {
+          username: this.username,
+          password: this.password,
+        });
 
-        // Si todo sale bien, guardamos token y redirigimos
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('loggedInUser', usernameLower);
-        localStorage.setItem('userRole', this.isAdmin ? 'Administrador' : this.role);
+        localStorage.setItem('loggedInUser', this.username.toLowerCase());
 
         this.$router.push({
           path: '/home',
-          query: {
-            username: this.username,
-            role: this.isAdmin ? 'Administrador' : this.role,
-          },
+          query: { username: this.username }
         });
       } catch (error) {
-        // Mostrar mensaje de error en snackbar
         console.error('❌ Error en login:', error.response || error);
         this.snackbarMessage = error.response?.data?.message || 'Error en autenticación';
         this.snackbar = true;
