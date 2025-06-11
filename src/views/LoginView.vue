@@ -96,7 +96,6 @@ export default {
       {
         username: this.username,
         password: this.password,
-        role: 'temporal' // ⚠️ Solo si backend lo exige
       }
     );
 
