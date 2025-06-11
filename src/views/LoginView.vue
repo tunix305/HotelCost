@@ -85,28 +85,55 @@ export default {
       showPasswordDialog: false,
     };
   },
+  computed: {
+    userRoleMapping() {
+      return {
+        petra: 'Administrador',
+        manuel: 'Supervisor de Mantenimiento',
+        edgar: 'Recepcionista',
+        luis: 'Empleado de Limpieza',
+        wilver: 'Gerente de Operaciones',
+      };
+    },
+  },
   methods: {
     async login() {
+      const usernameLower = this.username.toLowerCase();
+
+      // Validar campos vacíos
       if (!this.username || !this.password) {
-        this.snackbarMessage = 'Por favor, completa usuario y contraseña.';
+        this.snackbarMessage = 'Por favor, completa todos los campos.';
         this.snackbar = true;
         return;
       }
 
+      // Hacer el POST al backend usando la variable de entorno de Vue CLI
       try {
-        const response = await axios.post(`${process.env.VUE_APP_API_URL}/Users/login`, {
-          username: this.username,
-          password: this.password,
-        });
+        const response = await axios.post(
+          `${process.env.VUE_APP_API_URL}/Users/login`,
+          {
+            username: this.username,
+            password: this.password,
+          }
+        );
 
+        // Obtener el rol del mapeo de usuarios o del response del backend
+        const userRole = this.userRoleMapping[usernameLower] || response.data.role || 'Usuario';
+
+        // Si todo sale bien, guardamos token y redirigimos
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('loggedInUser', this.username.toLowerCase());
+        localStorage.setItem('loggedInUser', usernameLower);
+        localStorage.setItem('userRole', userRole);
 
         this.$router.push({
           path: '/home',
-          query: { username: this.username }
+          query: {
+            username: this.username,
+            role: userRole,
+          },
         });
       } catch (error) {
+        // Mostrar mensaje de error en snackbar
         console.error('❌ Error en login:', error.response || error);
         this.snackbarMessage = error.response?.data?.message || 'Error en autenticación';
         this.snackbar = true;
@@ -115,7 +142,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
   .login-container {
