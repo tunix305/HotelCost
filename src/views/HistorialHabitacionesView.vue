@@ -78,72 +78,69 @@
   </v-app>
 </template>
 
-<script>
-import axios from "axios";
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import axios from 'axios';
 
-export default {
-  name: "HistorialHabitacionesView",
-  data() {
-    return {
-      historial: [],
-      headers: [
-        { text: "ID Historial", value: "id_Historial" },
-        { text: "ID Habitación", value: "id_Habitacion" },
-        { text: "Número", value: "numero_Habitacion" },
-        { text: "Estado Anterior", value: "estado_Anterior" },
-        { text: "Estado Nuevo", value: "estado_Nuevo" },
-        { text: "Fecha de Cambio", value: "fecha_Cambio" },
-        { text: "Usuario", value: "usuario_Modificacion" },
-      ],
-      drawer: false,
-    };
-  },
-  methods: {
-    goBack() {
-      this.$router.push({
-        path: "/habitaciones",
-        query: {
-          username: this.$route.query.username,
-          role: this.$route.query.role,
-        },
-      });
+const historial = ref([]);
+const route = useRoute();
+const router = useRouter();
+
+// ✅ URL DE PRODUCCIÓN
+const API_BASE = 'https://www.hotelcost.somee.com/api';
+
+const headers = [
+  { text: 'ID Habitación', value: 'id_Habitacion', width: '120px' },
+  { text: 'Número', value: 'numero_Habitacion', width: '120px' },
+  { text: 'Fechas de Estancia', value: 'fecha_Entrada', width: '200px' },
+  { text: 'Fecha de Salida', value: 'fecha_Salida', width: '200px' },
+  { text: 'Fecha de Reserva', value: 'fecha_Cambio', width: '200px' },
+  { text: 'Usuario', value: 'usuario_Modificacion', width: '150px' }
+];
+
+const goBack = () => {
+  router.push({
+    path: '/habitaciones',
+    query: {
+      username: route.query.username,
+      role: route.query.role,
     },
-    handleDrawerBack() {
-      this.drawer = false;
-      setTimeout(() => {
-        this.goBack();
-      }, 200);
-    },
-    async cargarHistorial() {
-      try {
-        const res = await axios.get(
-          "https://www.hotelcost.somee.com/api/Habitaciones/HistorialCambios"
-        );
-        this.historial = res.data;
-      } catch (err) {
-        console.error("❌ Error al cargar historial:", err);
-      }
-    },
-    formatDate(fecha) {
-      if (!fecha) return "N/A";
-      const date = new Date(fecha);
-      return isNaN(date.getTime())
-        ? "Fecha inválida"
-        : date.toLocaleString("es-MX", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-          });
-    },
-  },
-  mounted() {
-    this.cargarHistorial();
-  },
+  });
 };
+
+const formatDate = (fecha) => {
+  if (!fecha) return 'N/A';
+  const date = new Date(fecha);
+  return isNaN(date.getTime())
+    ? 'Fecha inválida'
+    : date.toLocaleString('es-MX', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+};
+
+const cargarHistorial = async () => {
+  try {
+    const res = await axios.get(`${API_BASE}/Reservacion/HistorialReservas`);
+    historial.value = res.data.map(item => ({
+      ...item,
+      id_Habitacion: item.id_Habitacion || 'N/A',
+      numero_Habitacion: item.numero_Habitacion || 'N/A',
+      usuario_Modificacion: item.usuario_Modificacion || 'Usuario no especificado'
+    }));
+  } catch (err) {
+    console.error('Error al cargar historial:', err);
+  }
+};
+
+onMounted(cargarHistorial);
 </script>
+
 
 <style scoped>
 .historial-container {
