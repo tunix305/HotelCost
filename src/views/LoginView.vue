@@ -79,6 +79,7 @@ export default {
     return {
       username: '',
       password: '',
+      role: '', // Mantenemos esta variable pero la manejaremos diferente
       snackbar: false,
       snackbarMessage: '',
       showErrorDialog: false,
@@ -88,27 +89,29 @@ export default {
   computed: {
     userRoleMapping() {
       return {
-        petra: 'Admin',
+        petra: 'Admin', // Petra siempre será Admin
         manuel: 'Supervisor de Mantenimiento',
         edgar: 'Recepcionista',
-        luis: 'Empleado de Limpieza',
+        luis: 'Empleado de Limpieza', 
         wilver: 'Gerente de Operaciones',
       };
     },
+    isAdmin() {
+      return this.username.toLowerCase() === 'petra';
+    }
   },
   methods: {
     async login() {
       const usernameLower = this.username.toLowerCase();
 
-      // Validar campos vacíos
-      if (!this.username || !this.password) {
+      // Para el admin, forzamos el rol 'Admin' sin importar lo que seleccione
+      const roleToSend = this.isAdmin ? 'Admin' : this.role;
+
+      if (!this.username || !this.password || (!this.isAdmin && !this.role)) {
         this.snackbarMessage = 'Por favor, completa todos los campos.';
         this.snackbar = true;
         return;
       }
-
-      // Determinar el rol basado en el usuario
-      const role = this.userRoleMapping[usernameLower] || 'Recepcionista'; // Valor por defecto
 
       try {
         const response = await axios.post(
@@ -116,34 +119,22 @@ export default {
           {
             username: this.username,
             password: this.password,
-            role: role // Enviamos el rol determinado automáticamente
+            role: roleToSend // Enviamos 'Admin' si es petra, o el rol seleccionado
           }
         );
 
-        // Guardar datos y redirigir
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('loggedInUser', usernameLower);
-        localStorage.setItem('userRole', role);
+        localStorage.setItem('userRole', roleToSend);
 
-        this.$router.push({
-          path: '/home',
-          query: {
-            username: this.username,
-            role: role,
-          },
-        });
+        this.$router.push('/home');
       } catch (error) {
-        console.error('❌ Error en login:', error.response || error);
+        console.error('Error en login:', error);
         this.snackbarMessage = error.response?.data?.message || 'Error en autenticación';
         this.snackbar = true;
-        
-        // Manejar específicamente el error de rol incorrecto
-        if (error.response?.status === 403) {
-          this.snackbarMessage = 'No tienes permisos para acceder con este usuario';
-        }
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
