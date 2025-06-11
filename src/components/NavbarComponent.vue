@@ -276,7 +276,7 @@ onMounted(async () => {
   // ⑥ Si el rol es uno de los que reciben tareas, las pedimos
   if (
     [
-      'Administrador',
+      'Admin',
       'Empleado de Limpieza',
       'Supervisor de Mantenimiento',
       'Recepcionista',
@@ -290,6 +290,8 @@ onMounted(async () => {
       console.warn('❌ Error al obtener tareas pendientes:', error.message);
     }
   }
+  console.log('🧠 Rol detectado:', userRole.value);
+
 });
 </script>
 
