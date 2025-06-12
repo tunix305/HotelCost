@@ -125,16 +125,23 @@ const formatDate = (fecha) => {
 const cargarHistorial = async () => {
   try {
     const res = await axios.get("https://www.hotelcost.somee.com/api/Habitaciones/HistorialCambios");
-    historial.value = res.data.map(item => ({
-      ...item,
-      id_Habitacion: item.id_Habitacion || 'N/A',
-      numero_Habitacion: item.numero_Habitacion || 'N/A',
-      usuario_Modificacion: item.usuario_Modificacion || 'Usuario no especificado'
-    }));
+    historial.value = res.data
+      .filter(item =>
+        item.estado_Anterior === 'Disponible' && item.estado_Nuevo === 'Ocupada' ||
+        item.estado_Anterior === 'Ocupada' && item.estado_Nuevo === 'Disponible' ||
+        item.estado_Nuevo === 'Ocupada'
+      )
+      .map(item => ({
+        ...item,
+        id_Habitacion: item.id_Habitacion || 'N/A',
+        numero_Habitacion: item.numero_Habitacion || 'N/A',
+        usuario_Modificacion: item.usuario_Modificacion || 'Usuario no especificado'
+      }));
   } catch (err) {
     console.error('Error al cargar historial:', err);
   }
 };
+
 
 onMounted(cargarHistorial);
 </script>
