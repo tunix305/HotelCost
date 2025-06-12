@@ -1,5 +1,6 @@
 <template>
   <v-app>
+    <!-- Navbar -->
     <v-app-bar app color="#1a1a1a" dark height="auto" class="navbar">
       <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
         <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="50" class="logo-img" />
@@ -8,6 +9,7 @@
       </v-container>
     </v-app-bar>
 
+    <!-- Main -->
     <v-main class="registro-container">
       <v-container fluid class="d-flex justify-center">
         <v-card class="registro-card" elevation="12">
@@ -19,14 +21,18 @@
           <v-card-text>
             <v-form @submit.prevent="registrarCliente" ref="form">
               <v-row class="form-row d-flex flex-column align-center" dense>
+
                 <!-- Nombre -->
                 <v-col cols="12" md="6">
                   <v-text-field
                     v-model="nombre"
                     label="Nombre"
                     prepend-inner-icon="mdi-account"
-                    outlined dense clearable required
-                    @keypress="soloLetras($event)"
+                    outlined
+                    dense
+                    clearable
+                    required
+                    @keypress="soloLetras"
                   />
                 </v-col>
 
@@ -36,8 +42,11 @@
                     v-model="apellido"
                     label="Apellido"
                     prepend-inner-icon="mdi-account-outline"
-                    outlined dense clearable required
-                    @keypress="soloLetras($event)"
+                    outlined
+                    dense
+                    clearable
+                    required
+                    @keypress="soloLetras"
                   />
                 </v-col>
 
@@ -47,11 +56,14 @@
                     v-model="telefono"
                     label="Teléfono"
                     prepend-inner-icon="mdi-phone"
-                    outlined dense clearable type="tel"
+                    outlined
+                    dense
+                    clearable
+                    type="tel"
                     maxlength="10"
-                    :rules="[telefonoRule]"
-                    @keypress="soloNumeros($event)"
-                    @blur="validarTelefono"
+                    :rules="telefonoRule"
+                    @keypress="soloNumeros"
+                    @blur="validarTelefonoBlur"
                   />
                 </v-col>
 
@@ -61,12 +73,16 @@
                     v-model="correo"
                     label="Correo Electrónico"
                     prepend-inner-icon="mdi-email"
-                    outlined dense clearable type="email"
-                    :rules="[correoRule]"
-                    @blur="validarCorreo"
+                    outlined
+                    dense
+                    clearable
+                    type="email"
+                    :rules="correoRule"
+                    @blur="validarCorreoBlur"
                   />
                 </v-col>
 
+                <!-- Botón -->
                 <v-col cols="12" class="text-center mt-4">
                   <v-btn type="submit" class="submit-btn" large>REGISTRAR CLIENTE</v-btn>
                 </v-col>
@@ -78,6 +94,7 @@
     </v-main>
   </v-app>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -91,36 +108,43 @@ export default {
       apellido: '',
       telefono: '',
       correo: '',
-      telefonoRule: () => true,
-      correoRule: () => true,
+      telefonoRule: [],
+      correoRule: [],
     };
   },
   methods: {
     goToHome() {
       this.$router.push({ path: '/home', query: this.$route.query });
     },
+
     soloLetras(e) {
       const char = String.fromCharCode(e.keyCode || e.which);
       if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/.test(char)) {
         e.preventDefault();
       }
     },
+
     soloNumeros(e) {
-      if (!/\d/.test(e.key)) {
+      if (!/[0-9]/.test(e.key)) {
         e.preventDefault();
       }
     },
-    validarTelefono() {
-      this.telefonoRule = () =>
-        /^\d{10}$/.test(this.telefono) || 'Debe tener exactamente 10 dígitos';
+
+    validarTelefonoBlur() {
+      this.telefonoRule = [
+        v => /^\d{10}$/.test(v) || 'Debe tener exactamente 10 dígitos',
+      ];
     },
-    validarCorreo() {
-      this.correoRule = () =>
-        /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(this.correo) || 'Correo inválido';
+
+    validarCorreoBlur() {
+      this.correoRule = [
+        v => /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v) || 'Correo inválido',
+      ];
     },
+
     async registrarCliente() {
-      this.validarTelefono();
-      this.validarCorreo();
+      this.validarTelefonoBlur();
+      this.validarCorreoBlur();
 
       if (!this.$refs.form.validate()) {
         Swal.fire('Campos incompletos', 'Revisa los campos del formulario.', 'warning');
@@ -144,14 +168,8 @@ export default {
       }
     },
   },
-  mounted() {
-    const { username, role } = this.$route.query;
-    this.usuario = username || 'Invitado';
-    this.role = role || 'Sin rol asignado';
-  },
 };
 </script>
-
 
 <style scoped>
   .registro-container {
