@@ -40,6 +40,11 @@
               <span class="font-weight-bold">Habitación:</span> {{ item.numero_Habitacion || 'N/A' }}
             </template>
 
+            
+<template #item.estado_Cambio="{ item }">
+  <span class="font-weight-bold">Cambio:</span> {{ item.estado_Cambio }}
+</template>
+
             <template #item.fecha_Entrada="{ item }">
               <div>
                 <span class="font-weight-bold">Entrada:</span><br />
