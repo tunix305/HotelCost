@@ -2,84 +2,69 @@
   <v-app>
     <!-- Navbar -->
     <v-app-bar app color="#1a1a1a" dark height="auto" class="navbar">
-  <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
-    <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="50" class="logo-img" />
-    <h1 class="navbar-title white--text text-center">Registro de Clientes</h1>
-    <v-btn class="regresar-btn" @click="goToHome">REGRESAR</v-btn>
-  </v-container>
-</v-app-bar>
-
+      <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
+        <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="50" class="logo-img" />
+        <h1 class="navbar-title white--text text-center">Registro de Clientes</h1>
+        <v-btn class="regresar-btn" @click="goToHome">REGRESAR</v-btn>
+      </v-container>
+    </v-app-bar>
 
     <!-- Main Content -->
     <v-main class="registro-container">
       <v-container fluid class="d-flex justify-center">
         <v-card class="registro-card" elevation="12">
-         <v-card-title class="registro-header text-h6 font-weight-medium text-center justify-center">
-          Nuevo Cliente
-        </v-card-title>
+          <v-card-title class="registro-header text-h6 font-weight-medium text-center justify-center">
+            Nuevo Cliente
+          </v-card-title>
 
-          
           <v-divider />
           <v-card-text>
             <v-form @submit.prevent="registrarCliente" ref="form">
               <v-row class="form-row d-flex flex-column align-center" dense>
-  <v-col cols="12" md="6">
-    <v-text-field
-      v-model="nombre"
-      label="Nombre"
-      prepend-inner-icon="mdi-account"
-      outlined
-      dense
-      clearable
-      required
-    />
-  </v-col>
-  <v-col cols="12" md="6">
-    <v-text-field
-      v-model="apellido"
-      label="Apellido"
-      prepend-inner-icon="mdi-account-outline"
-      outlined
-      dense
-      clearable
-      required
-    />
-  </v-col>
-  <v-col cols="12" md="6">
-    <v-text-field
-      v-model="telefono"
-      label="Teléfono"
-      prepend-inner-icon="mdi-phone"
-      outlined
-      dense
-      clearable
-      :rules="[v => /^\\d{10}$/.test(v) || 'Debe tener 10 dígitos']"
-      required
-    />
-  </v-col>
-  <v-col cols="12" md="6">
-    <v-text-field
-      v-model="correo"
-      label="Correo Electrónico"
-      prepend-inner-icon="mdi-email"
-      outlined
-      dense
-      clearable
-      type="email"
-      :rules="[v => /.+@.+\\..+/.test(v) || 'Email inválido']"
-      required
-    />
-  </v-col>
-  <v-col cols="12" class="text-center mt-4">
-    <v-btn type="submit" class="submit-btn" large>REGISTRAR CLIENTE</v-btn>
-  </v-col>
-</v-row>
-
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="nombre"
+                    label="Nombre"
+                    prepend-inner-icon="mdi-account"
+                    outlined dense clearable required
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="apellido"
+                    label="Apellido"
+                    prepend-inner-icon="mdi-account-outline"
+                    outlined dense clearable required
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="telefono"
+                    label="Teléfono"
+                    prepend-inner-icon="mdi-phone"
+                    outlined dense clearable
+                    :rules="[v => /^\d{10}$/.test(v) || 'Debe tener 10 dígitos numéricos']"
+                    maxlength="10"
+                    type="tel"
+                    required
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="correo"
+                    label="Correo Electrónico"
+                    prepend-inner-icon="mdi-email"
+                    outlined dense clearable type="email"
+                    :rules="[v => /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v) || 'Email inválido']"
+                    required
+                  />
+                </v-col>
+                <v-col cols="12" class="text-center mt-4">
+                  <v-btn type="submit" class="submit-btn" large>REGISTRAR CLIENTE</v-btn>
+                </v-col>
+              </v-row>
             </v-form>
           </v-card-text>
-          <v-snackbar v-model="snackbar" :timeout="3000" :color="snackbarColor">
-            {{ snackbarMessage }}
-          </v-snackbar>
         </v-card>
       </v-container>
     </v-main>
@@ -87,52 +72,52 @@
 </template>
 
 <script>
-  import axios from 'axios';
-  export default {
-    name: 'RegistroCliente',
-    data() {
-      return {
-        nombre: '',
-        apellido: '',
-        telefono: '',
-        correo: '',
-        snackbar: false,
-        snackbarMessage: '',
-        snackbarColor: 'green',
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
+export default {
+  name: 'RegistroCliente',
+  data() {
+    return {
+      nombre: '',
+      apellido: '',
+      telefono: '',
+      correo: '',
+    };
+  },
+  methods: {
+    goToHome() {
+      this.$router.push({ path: '/home', query: this.$route.query });
+    },
+    async registrarCliente() {
+      if (!this.$refs.form.validate()) {
+        Swal.fire('Error', 'Revisa los campos del formulario', 'warning');
+        return;
+      }
+
+      const nuevo = {
+        nombre: this.nombre,
+        apellido: this.apellido,
+        numero: this.telefono,
+        correo: this.correo,
       };
+
+      try {
+        const { data } = await axios.post('https://hotelcost.somee.com/api/Clientes', nuevo);
+        Swal.fire('Éxito', data.message || 'Cliente registrado correctamente', 'success');
+        this.nombre = this.apellido = this.telefono = this.correo = '';
+        this.$refs.form.reset();
+      } catch (error) {
+        Swal.fire('Error', 'No se pudo registrar el cliente', 'error');
+      }
     },
-    methods: {
-      goToHome() {
-        this.$router.push({ path: '/home', query: this.$route.query });
-      },
-      async registrarCliente() {
-        if (!this.$refs.form.validate()) return;
-        const nuevo = {
-          nombre: this.nombre,
-          apellido: this.apellido,
-          numero: this.telefono,
-          correo: this.correo,
-        };
-        try {
-          const { data } = await axios.post('https://hotelcost.somee.com/api/Clientes', nuevo);
-          this.snackbarMessage = data.message || 'Cliente registrado con éxito';
-          this.snackbarColor = 'green';
-        } catch {
-          this.snackbarMessage = 'Error al registrar cliente';
-          this.snackbarColor = 'red';
-        } finally {
-          this.snackbar = true;
-          this.nombre = this.apellido = this.telefono = this.correo = '';
-          this.$refs.form.reset();
-        }
-      },
-    },
-    mounted() {
-      const { username, role } = this.$route.query;
-      this.usuario = username || 'Invitado';
-      this.role = role || 'Sin rol asignado';
-    },
-  };
+  },
+  mounted() {
+    const { username, role } = this.$route.query;
+    this.usuario = username || 'Invitado';
+    this.role = role || 'Sin rol asignado';
+  },
+};
 </script>
 
 <style scoped>
