@@ -243,27 +243,61 @@ const downloadReport = reporte => {
     if (reporte.comentario) doc.text(`Comentario: ${reporte.comentario}`, 20, 90);
 
     let y = 105;
+
+    // Sección del resumen general
     switch (reporte.tipoInforme) {
       case 'Ingresos':
         doc.text(`Ingresos: $${ingresosMensuales.value}`, 20, y);
+        y += 10;
         break;
       case 'Ocupación':
         doc.text(`Ocupación: ${ocupacionTotal.value}%`, 20, y);
+        y += 10;
         break;
       case 'Rendimiento':
         doc.text(`Rendimiento: ${rendimientoMensual.value}`, 20, y);
+        y += 10;
         break;
       case 'Total':
         doc.text('Informe Total:', 20, y);
         doc.text(`• Ingresos: $${ingresosMensuales.value}`, 25, y + 10);
         doc.text(`• Ocupación: ${ocupacionTotal.value}%`, 25, y + 20);
         doc.text(`• Rendimiento: ${rendimientoMensual.value}`, 25, y + 30);
+        y += 45;
         break;
+    }
+
+    // Sección de habitaciones ocupadas con fechas
+    if (reporte.habitaciones && reporte.habitaciones.length > 0) {
+      doc.setFontSize(12);
+      doc.text('Habitaciones ocupadas:', 20, y);
+      y += 10;
+
+      reporte.habitaciones.forEach(h => {
+        doc.text(`• Habitación ${h.numero} (${h.tipo})`, 25, y);
+        y += 7;
+
+        if (h.fechas && h.fechas.length > 0) {
+          h.fechas.forEach(f => {
+            doc.text(`   - Del ${f.fechaInicio} al ${f.fechaFinal}`, 30, y);
+            y += 6;
+            if (y >= 270) {
+              doc.addPage();
+              y = 20;
+            }
+          });
+        } else {
+          doc.text(`   - Sin fechas registradas`, 30, y);
+          y += 6;
+        }
+        y += 4;
+      });
     }
 
     doc.save(`Informe_${reporte.tipoInforme}_${reporte.mes}.pdf`);
   };
 };
+
 
 onMounted(() => {
   if (route.query.username) {
