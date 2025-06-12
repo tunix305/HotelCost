@@ -197,29 +197,34 @@ const tareasPendientes = ref([]);
 
 // ③ Mapeo de roles → rutas del menú (escritorio y drawer)
 const roleMenuMapping = {
-   Admin:[
+  Admin: [
     { label: 'Habitaciones', path: '/habitaciones' },
     { label: 'Reservaciónes', path: '/resevaciones' },
     { label: 'Clientes', path: '/clientes' },
     { label: 'Tareas', path: '/tareas' },
     { label: 'Informes', path: '/informes' },
+    { label: 'Historial de Estados', path: '/historialestado' }
   ],
-  'Empleado de Limpieza': [{ label: 'Tareas', path: '/tareas' }],
+  'Empleado de Limpieza': [
+    { label: 'Tareas', path: '/tareas' }
+  ],
   'Supervisor de Mantenimiento': [
     { label: 'Habitaciones', path: '/habitaciones' },
     { label: 'Tareas', path: '/tareas' },
+    { label: 'Historial de Estados', path: '/historialestado' }
   ],
   'Gerente de Operaciones': [
     { label: 'Habitaciones', path: '/habitaciones' },
     { label: 'Tareas', path: '/tareas' },
-    { label: 'Informes', path: '/informes' },
+    { label: 'Informes', path: '/informes' }
   ],
   Recepcionista: [
     { label: 'Habitaciones', path: '/habitaciones' },
     { label: 'Reservaciónes', path: '/resevaciones' },
-    { label: 'Clientes', path: '/clientes' },
-  ],
+    { label: 'Clientes', path: '/clientes' }
+  ]
 };
+
 
 // ④ Ruta de la foto del usuario (carpeta docs/usuariosfotos)
 const userImagePath = ref(`usuariosfotos/${loggedInUser.value}.png`);

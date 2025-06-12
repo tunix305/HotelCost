@@ -7,6 +7,7 @@ import InformesView from "@/views/InformesView.vue";
 import ClienteView from "@/views/ClientesView.vue";
 import ResevacionesView from "@/views/ResevacionesView.vue";
 import HistorialHabitacionesView from "@/views/HistorialHabitacionesView.vue";
+import HistorialEstados from "@/views/HistorialEstados.vue";
 
 const routes = [
   { path: "/", name: "Login", component: LoginView },
@@ -17,6 +18,7 @@ const routes = [
   { path: "/historial-habitaciones", name: "Historial", component: HistorialHabitacionesView },
   { path: "/clientes", name: "Cliente", component: ClienteView },
   { path: "/resevaciones", name: "Reservaciones", component: ResevacionesView },
+  { path: "/historialestado", name: "HistorialEstados", component: HistorialEstados },
 ];
 
 const router = createRouter({
