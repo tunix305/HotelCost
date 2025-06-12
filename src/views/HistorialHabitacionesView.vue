@@ -40,16 +40,18 @@
               <span class="font-weight-bold">Habitación:</span> {{ item.numero_Habitacion || 'N/A' }}
             </template>
 
-            
-<template #item.estado_Cambio="{ item }">
-  <span class="font-weight-bold">Cambio:</span> {{ item.estado_Cambio }}
-</template>
+            <template #item.estado_Cambio="{ item }">
+              <v-chip :color="getEstadoColor(item.estado_Nuevo)" small>
+                {{ item.estado_Anterior }} → {{ item.estado_Nuevo }}
+              </v-chip>
+            </template>
 
             <template #item.fecha_Entrada="{ item }">
               <div>
                 <span class="font-weight-bold">Entrada:</span><br />
                 {{
-                  item.estado_Anterior === 'Disponible' && item.estado_Nuevo === 'Ocupada'
+                  (item.estado_Anterior === 'Disponible' && item.estado_Nuevo === 'Ocupada') ||
+                  (item.estado_Anterior === 'Reservada' && item.estado_Nuevo === 'Ocupada')
                     ? formatDate(item.fecha_Cambio)
                     : 'N/A'
                 }}
@@ -60,7 +62,8 @@
               <div>
                 <span class="font-weight-bold">Salida:</span><br />
                 {{
-                  item.estado_Anterior === 'Ocupada' && item.estado_Nuevo === 'Disponible'
+                  item.estado_Anterior === 'Ocupada' && 
+                  ['Disponible', 'Limpieza', 'Mantenimiento'].includes(item.estado_Nuevo)
                     ? formatDate(item.fecha_Cambio)
                     : 'N/A'
                 }}
@@ -69,7 +72,7 @@
 
             <template #item.fecha_Cambio="{ item }">
               <div>
-                <span class="font-weight-bold">Reserva:</span><br />
+                <span class="font-weight-bold">Cambio:</span><br />
                 {{ formatDate(item.fecha_Cambio) || 'N/A' }}
               </div>
             </template>
@@ -94,15 +97,14 @@ const route = useRoute();
 const router = useRouter();
 
 const headers = [
-  { text: 'ID Habitación', value: 'id_Habitacion' },
-  { text: 'Número', value: 'numero_Habitacion' },
-  { text: 'Cambio de Estado', value: 'estado_Cambio' },
-  { text: 'Entrada', value: 'fecha_Entrada' },
-  { text: 'Salida', value: 'fecha_Salida' },
-  { text: 'Reserva', value: 'fecha_Cambio' },
+  { text: 'ID Habitación', value: 'id_Habitacion', width: '100px' },
+  { text: 'Número', value: 'numero_Habitacion', width: '100px' },
+  { text: 'Cambio de Estado', value: 'estado_Cambio', width: '150px' },
+  { text: 'Entrada', value: 'fecha_Entrada', width: '150px' },
+  { text: 'Salida', value: 'fecha_Salida', width: '150px' },
+  { text: 'Fecha Cambio', value: 'fecha_Cambio', width: '150px' },
   { text: 'Usuario', value: 'usuario_Modificacion' }
 ];
-
 
 const goBack = () => {
   router.push({
@@ -129,13 +131,30 @@ const formatDate = (fecha) => {
       });
 };
 
+const getEstadoColor = (estado) => {
+  const colors = {
+    'Ocupada': 'red',
+    'Disponible': 'green',
+    'Reservada': 'orange',
+    'Limpieza': 'blue',
+    'Mantenimiento': 'purple'
+  };
+  return colors[estado] || 'grey';
+};
+
 const cargarHistorial = async () => {
   try {
     const res = await axios.get("https://www.hotelcost.somee.com/api/Habitaciones/HistorialCambios");
     historial.value = res.data
-      .filter(item =>
-        ['Ocupada', 'Limpieza', 'Mantenimiento'].includes(item.estado_Nuevo) ||
-        ['Ocupada', 'Limpieza', 'Mantenimiento'].includes(item.estado_Anterior)
+      .filter(item => 
+        item.estado_Nuevo === 'Ocupada' || 
+        item.estado_Anterior === 'Ocupada' ||
+        item.estado_Nuevo === 'Limpieza' ||
+        item.estado_Anterior === 'Limpieza' ||
+        item.estado_Nuevo === 'Mantenimiento' ||
+        item.estado_Anterior === 'Mantenimiento' ||
+        item.estado_Nuevo === 'Reservada' ||
+        item.estado_Anterior === 'Reservada'
       )
       .map(item => ({
         ...item,
@@ -147,10 +166,9 @@ const cargarHistorial = async () => {
       .sort((a, b) => new Date(b.fecha_Cambio) - new Date(a.fecha_Cambio));
   } catch (err) {
     console.error('Error al cargar historial:', err);
+    // Opcional: mostrar notificación de error al usuario
   }
 };
-
-
 
 onMounted(cargarHistorial);
 </script>
