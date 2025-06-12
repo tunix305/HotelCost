@@ -91,11 +91,13 @@ const router = useRouter();
 const headers = [
   { text: 'ID Habitación', value: 'id_Habitacion' },
   { text: 'Número', value: 'numero_Habitacion' },
+  { text: 'Cambio de Estado', value: 'estado_Cambio' },
   { text: 'Entrada', value: 'fecha_Entrada' },
   { text: 'Salida', value: 'fecha_Salida' },
   { text: 'Reserva', value: 'fecha_Cambio' },
   { text: 'Usuario', value: 'usuario_Modificacion' }
 ];
+
 
 const goBack = () => {
   router.push({
@@ -134,13 +136,15 @@ const cargarHistorial = async () => {
         ...item,
         id_Habitacion: item.id_Habitacion || 'N/A',
         numero_Habitacion: item.numero_Habitacion || 'N/A',
-        usuario_Modificacion: item.usuario_Modificacion || 'Usuario no especificado'
+        usuario_Modificacion: item.usuario_Modificacion || 'Usuario no especificado',
+        estado_Cambio: `${item.estado_Anterior} → ${item.estado_Nuevo}`
       }))
       .sort((a, b) => new Date(b.fecha_Cambio) - new Date(a.fecha_Cambio));
   } catch (err) {
     console.error('Error al cargar historial:', err);
   }
 };
+
 
 
 onMounted(cargarHistorial);
