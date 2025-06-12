@@ -1,6 +1,5 @@
 <template>
   <v-app>
-    <!-- Navbar -->
     <v-app-bar app color="#1a1a1a" dark height="auto" class="navbar">
       <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
         <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="50" class="logo-img" />
@@ -9,7 +8,6 @@
       </v-container>
     </v-app-bar>
 
-    <!-- Main Content -->
     <v-main class="registro-container">
       <v-container fluid class="d-flex justify-center">
         <v-card class="registro-card" elevation="12">
@@ -21,44 +19,54 @@
           <v-card-text>
             <v-form @submit.prevent="registrarCliente" ref="form">
               <v-row class="form-row d-flex flex-column align-center" dense>
+                <!-- Nombre -->
                 <v-col cols="12" md="6">
                   <v-text-field
                     v-model="nombre"
                     label="Nombre"
                     prepend-inner-icon="mdi-account"
                     outlined dense clearable required
+                    @keypress="soloLetras($event)"
                   />
                 </v-col>
+
+                <!-- Apellido -->
                 <v-col cols="12" md="6">
                   <v-text-field
                     v-model="apellido"
                     label="Apellido"
                     prepend-inner-icon="mdi-account-outline"
                     outlined dense clearable required
+                    @keypress="soloLetras($event)"
                   />
                 </v-col>
+
+                <!-- Teléfono -->
                 <v-col cols="12" md="6">
                   <v-text-field
                     v-model="telefono"
                     label="Teléfono"
                     prepend-inner-icon="mdi-phone"
-                    outlined dense clearable
-                    :rules="[v => /^\d{10}$/.test(v) || 'Debe tener 10 dígitos numéricos']"
+                    outlined dense clearable type="tel"
                     maxlength="10"
-                    type="tel"
-                    required
+                    :rules="[telefonoRule]"
+                    @keypress="soloNumeros($event)"
+                    @blur="validarTelefono"
                   />
                 </v-col>
+
+                <!-- Correo -->
                 <v-col cols="12" md="6">
                   <v-text-field
                     v-model="correo"
                     label="Correo Electrónico"
                     prepend-inner-icon="mdi-email"
                     outlined dense clearable type="email"
-                    :rules="[v => /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v) || 'Email inválido']"
-                    required
+                    :rules="[correoRule]"
+                    @blur="validarCorreo"
                   />
                 </v-col>
+
                 <v-col cols="12" class="text-center mt-4">
                   <v-btn type="submit" class="submit-btn" large>REGISTRAR CLIENTE</v-btn>
                 </v-col>
@@ -83,15 +91,39 @@ export default {
       apellido: '',
       telefono: '',
       correo: '',
+      telefonoRule: () => true,
+      correoRule: () => true,
     };
   },
   methods: {
     goToHome() {
       this.$router.push({ path: '/home', query: this.$route.query });
     },
+    soloLetras(e) {
+      const char = String.fromCharCode(e.keyCode);
+      if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/.test(char)) {
+        e.preventDefault();
+      }
+    },
+    soloNumeros(e) {
+      if (!/\d/.test(e.key)) {
+        e.preventDefault();
+      }
+    },
+    validarTelefono() {
+      this.telefonoRule = v =>
+        /^\d{10}$/.test(this.telefono) || 'Debe tener exactamente 10 dígitos';
+    },
+    validarCorreo() {
+      this.correoRule = v =>
+        /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(this.correo) || 'Correo inválido';
+    },
     async registrarCliente() {
+      this.validarTelefono();
+      this.validarCorreo();
+
       if (!this.$refs.form.validate()) {
-        Swal.fire('Error', 'Revisa los campos del formulario', 'warning');
+        Swal.fire('Campos incompletos', 'Revisa los campos del formulario.', 'warning');
         return;
       }
 
@@ -104,10 +136,10 @@ export default {
 
       try {
         const { data } = await axios.post('https://hotelcost.somee.com/api/Clientes', nuevo);
-        Swal.fire('Éxito', data.message || 'Cliente registrado correctamente', 'success');
+        Swal.fire('Registrado', data.message || 'Cliente registrado con éxito', 'success');
         this.nombre = this.apellido = this.telefono = this.correo = '';
         this.$refs.form.reset();
-      } catch (error) {
+      } catch {
         Swal.fire('Error', 'No se pudo registrar el cliente', 'error');
       }
     },
