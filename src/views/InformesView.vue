@@ -124,10 +124,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, getCurrentInstance } from 'vue';
 import axios from 'axios';
 import { useRoute, useRouter } from 'vue-router';
 import jsPDF from 'jspdf';
+import Swal from 'sweetalert2';
 import logo from '@/assets/logotiopo.png';
 
 const router = useRouter();
@@ -183,47 +184,85 @@ const loadResumenGeneral = async () => {
 const loadReports = async () => {
   try {
     const { data } = await axios.get('https://www.hotelcost.somee.com/api/informes');
-recentReports.value = data.map(r => ({
-  ...r,
-  generadoEl: new Date(r.generadoEl).toLocaleDateString('es-ES'),
-}));
-
+    recentReports.value = data.map(r => ({
+      ...r,
+      generadoEl: new Date(r.generadoEl + 'T00:00:00').toLocaleDateString('es-ES'),
+      habitaciones: r.habitaciones || []
+    }));
   } catch (e) { console.error(e); }
 };
 
 const generateReport = async () => {
   if (!selectedReportType.value || !selectedMonth.value) {
-    return alert('Selecciona tipo y mes.');
+    return Swal.fire({
+      icon: 'warning',
+      title: 'Campos incompletos',
+      text: 'Selecciona tipo y mes para generar el informe.'
+    });
   }
+
   const nuevo = {
     tipoInforme: selectedReportType.value,
-    mes:          selectedMonth.value,
-    generadoEl:   new Date().toISOString(),
-    usuario:      username.value || 'Invitado',
-    comentario:   comentario.value,
+    mes:         selectedMonth.value,
+    generadoEl:  new Date().toISOString(),
+    usuario:     username.value || 'Invitado',
+    comentario:  comentario.value,
   };
+
   try {
     await axios.post('https://www.hotelcost.somee.com/api/informes', nuevo);
     await loadReports();
-    alert('Informe generado.');
+    Swal.fire({
+      icon: 'success',
+      title: 'Informe generado',
+      text: 'El informe fue guardado exitosamente.',
+      confirmButtonColor: '#fbc02d'
+    });
     selectedReportType.value = '';
     selectedMonth.value      = '';
     comentario.value         = '';
   } catch (e) {
     console.error(e);
-    alert('Error al generar informe.');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error al generar informe',
+      text: 'Verifica la conexión o los datos.',
+      confirmButtonColor: '#f27474'
+    });
   }
 };
 
 const deleteReport = async id => {
-  if (!confirm('¿Eliminar este informe?')) return;
+  const result = await Swal.fire({
+    title: '¿Eliminar informe?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#f27474',
+    cancelButtonColor: '#1a1a1a',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (!result.isConfirmed) return;
+
   try {
     await axios.delete(`https://www.hotelcost.somee.com/api/informes/${id}`);
     await loadReports();
-    alert('Informe eliminado.');
+    Swal.fire({
+      icon: 'success',
+      title: 'Eliminado',
+      text: 'Informe eliminado correctamente.',
+      timer: 1500,
+      showConfirmButton: false
+    });
   } catch (e) {
     console.error(e);
-    alert('Error al eliminar informe.');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error al eliminar',
+      text: 'Ocurrió un problema al eliminar el informe.'
+    });
   }
 };
 
@@ -243,21 +282,13 @@ const downloadReport = reporte => {
     if (reporte.comentario) doc.text(`Comentario: ${reporte.comentario}`, 20, 90);
 
     let y = 105;
-
-    // Sección del resumen general
     switch (reporte.tipoInforme) {
       case 'Ingresos':
-        doc.text(`Ingresos: $${ingresosMensuales.value}`, 20, y);
-        y += 10;
-        break;
+        doc.text(`Ingresos: $${ingresosMensuales.value}`, 20, y); y += 10; break;
       case 'Ocupación':
-        doc.text(`Ocupación: ${ocupacionTotal.value}%`, 20, y);
-        y += 10;
-        break;
+        doc.text(`Ocupación: ${ocupacionTotal.value}%`, 20, y); y += 10; break;
       case 'Rendimiento':
-        doc.text(`Rendimiento: ${rendimientoMensual.value}`, 20, y);
-        y += 10;
-        break;
+        doc.text(`Rendimiento: ${rendimientoMensual.value}`, 20, y); y += 10; break;
       case 'Total':
         doc.text('Informe Total:', 20, y);
         doc.text(`• Ingresos: $${ingresosMensuales.value}`, 25, y + 10);
@@ -267,7 +298,6 @@ const downloadReport = reporte => {
         break;
     }
 
-    // Sección de habitaciones ocupadas con fechas
     if (reporte.habitaciones && reporte.habitaciones.length > 0) {
       doc.setFontSize(12);
       doc.text('Habitaciones ocupadas:', 20, y);
@@ -281,10 +311,7 @@ const downloadReport = reporte => {
           h.fechas.forEach(f => {
             doc.text(`   - Del ${f.fechaInicio} al ${f.fechaFinal}`, 30, y);
             y += 6;
-            if (y >= 270) {
-              doc.addPage();
-              y = 20;
-            }
+            if (y >= 270) { doc.addPage(); y = 20; }
           });
         } else {
           doc.text(`   - Sin fechas registradas`, 30, y);
@@ -297,7 +324,6 @@ const downloadReport = reporte => {
     doc.save(`Informe_${reporte.tipoInforme}_${reporte.mes}.pdf`);
   };
 };
-
 
 onMounted(() => {
   if (route.query.username) {
@@ -317,6 +343,7 @@ onMounted(() => {
   loadReports();
 });
 </script>
+
 
 <style scoped>
 .informes-fondo {

@@ -12,6 +12,9 @@ import PrimeVue from "primevue/config";
 import Galleria from "primevue/galleria";
 import Avatar from "primevue/avatar";
 
+// SweetAlert2
+import Swal from 'sweetalert2'; // ✅ Agregado
+
 // Estilos
 import "@mdi/font/css/materialdesignicons.css";
 import "primeicons/primeicons.css";
@@ -37,6 +40,9 @@ app.use(PrimeVue);
 // Registrar componentes PrimeVue globales
 app.component("PvAvatar", Avatar);
 app.component("PrimeGalleria", Galleria);
+
+// Registrar SweetAlert2 globalmente ✅
+app.config.globalProperties.$swal = Swal;
 
 // Montar la app con control de errores
 try {
