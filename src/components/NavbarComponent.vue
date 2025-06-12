@@ -209,7 +209,6 @@ const roleMenuMapping = {
     { label: 'Tareas', path: '/tareas' }
   ],
   'Supervisor de Mantenimiento': [
-    { label: 'Habitaciones', path: '/habitaciones' },
     { label: 'Tareas', path: '/tareas' },
     { label: 'Historial de Estados', path: '/historialestado' }
   ],
