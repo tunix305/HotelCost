@@ -100,7 +100,7 @@ export default {
       this.$router.push({ path: '/home', query: this.$route.query });
     },
     soloLetras(e) {
-      const char = String.fromCharCode(e.keyCode);
+      const char = String.fromCharCode(e.keyCode || e.which);
       if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/.test(char)) {
         e.preventDefault();
       }
@@ -111,11 +111,11 @@ export default {
       }
     },
     validarTelefono() {
-      this.telefonoRule = v =>
+      this.telefonoRule = () =>
         /^\d{10}$/.test(this.telefono) || 'Debe tener exactamente 10 dígitos';
     },
     validarCorreo() {
-      this.correoRule = v =>
+      this.correoRule = () =>
         /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(this.correo) || 'Correo inválido';
     },
     async registrarCliente() {
@@ -151,6 +151,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
   .registro-container {
