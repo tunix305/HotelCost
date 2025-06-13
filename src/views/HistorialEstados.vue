@@ -26,11 +26,11 @@
                 {{ item.estado }}
               </v-chip>
             </template>
-            <template #item.fechaInicio="{ item }">
-              {{ formatFechaCompleta(item.fechaInicio) }}
+            <template #item.fecha_inicio="{ item }">
+              {{ formatFechaCompleta(item.fecha_inicio) }}
             </template>
-            <template #item.fechaFin="{ item }">
-              {{ formatFechaCompleta(item.fechaFin) }}
+            <template #item.fecha_salida="{ item }">
+              {{ formatFechaCompleta(item.fecha_salida) }}
             </template>
           </v-data-table>
         </v-card>
@@ -49,8 +49,8 @@ const router = useRouter();
 const headers = [
   { text: 'Habitación', value: 'habitacion', width: '120px' },
   { text: 'Estado', value: 'estado', width: '130px' },
-  { text: 'Fecha de inicio', value: 'fechaInicio', width: '180px' },
-  { text: 'Fecha de salida', value: 'fechaFin', width: '180px' },
+  { text: 'Fecha de inicio', value: 'fecha_inicio', width: '180px' },
+  { text: 'Fecha de salida', value: 'fecha_salida', width: '180px' },
   { text: 'Motivo', value: 'motivo', width: '280px' },
   { text: 'Responsable', value: 'responsable', width: '180px' },
 ];
@@ -87,12 +87,12 @@ const cargarHistorial = async () => {
       .map(e => ({
         habitacion: e.numero_Habitacion || 'N/A',
         estado: e.estado_Nuevo || 'N/A',
-        fechaInicio: e.fecha_Cambio, // Simula la fecha de inicio
-        fechaFin: e.fecha_Cambio,
+        fecha_inicio: e.fecha_Cambio,  // este nombre coincide con el header
+        fecha_salida: e.fecha_Cambio,  // igual aquí
         motivo: `Cambio desde ${e.estado_Anterior || 'desconocido'}`,
         responsable: e.usuario_Modificacion || 'No especificado'
       }))
-      .sort((a, b) => new Date(b.fechaFin) - new Date(a.fechaFin));
+      .sort((a, b) => new Date(b.fecha_salida) - new Date(a.fecha_salida));
   } catch (error) {
     console.error('❌ Error al cargar historial:', error);
   }
