@@ -13,7 +13,7 @@
           <h3 class="text-h6 text-center font-weight-bold mb-4">
             Habitaciones con estado Ocupada, Limpieza o Mantenimiento
           </h3>
-
+           habitacion-------------estado---------fecha de inicio--------------fecha de salida ----------------motivo-------------responsable
           <v-data-table
             :headers="headers"
             :items="historialEstados"
