@@ -21,11 +21,14 @@
             class="elevation-1 estado-table"
             no-data-text="No se encontraron registros"
             :items-per-page="10"
+            hide-default-header
           >
-            <template #header="{ headers }">
-              <thead>
+            <template #header>
+              <thead class="v-data-table-header">
                 <tr>
-                  <th v-for="header in headers" :key="header.text" class="text-left">
+                  <th v-for="header in headers" :key="header.text" 
+                      :style="{ width: header.width, textAlign: header.align || 'left' }"
+                      class="header-cell">
                     {{ header.text }}
                   </th>
                 </tr>
@@ -60,13 +63,13 @@ import axios from 'axios';
 const router = useRouter();
 
 const headers = [
-  { text: 'ID', value: 'id', width: '5%', align: 'center' },
-  { text: 'Habitación', value: 'habitacion', width: '10%', align: 'center' },
-  { text: 'Fecha Inicio', value: 'fechaInicio', width: '20%' },
-  { text: 'Fecha Fin', value: 'fechaFin', width: '20%' },
-  { text: 'Motivo', value: 'motivo', width: '25%' },
-  { text: 'Estado', value: 'estado', width: '15%', align: 'center' },
-  { text: 'Responsable', value: 'responsable', width: '15%' },
+  { text: 'ID', value: 'id', width: '80px', align: 'center' },
+  { text: 'Habitación', value: 'habitacion', width: '100px', align: 'center' },
+  { text: 'Fecha Inicio', value: 'fechaInicio', width: '180px' },
+  { text: 'Fecha Fin', value: 'fechaFin', width: '180px' },
+  { text: 'Motivo', value: 'motivo', width: '250px' },
+  { text: 'Estado', value: 'estado', width: '140px', align: 'center' },
+  { text: 'Responsable', value: 'responsable', width: '150px' },
 ];
 
 const historialEstados = ref([]);
@@ -130,22 +133,28 @@ onMounted(() => {
 .estado-table {
   background-color: white !important;
   border-radius: 8px;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
-.estado-table >>> th {
-  font-weight: bold !important;
+.estado-table >>> .v-data-table-header {
   background-color: #f5f5f5 !important;
-  font-size: 14px;
+}
+
+.estado-table >>> .header-cell {
+  font-weight: bold !important;
+  font-size: 14px !important;
   padding: 12px 16px !important;
+  background-color: #f5f5f5 !important;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .estado-table >>> td {
   font-size: 13px;
   padding: 8px 16px !important;
-}
-
-.estado-table >>> thead {
-  background-color: #f5f5f5;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .regresar-btn {
@@ -164,9 +173,5 @@ onMounted(() => {
 
 .v-card {
   border-radius: 12px;
-}
-
-.v-data-table-header {
-  background-color: #f5f5f5 !important;
 }
 </style>
