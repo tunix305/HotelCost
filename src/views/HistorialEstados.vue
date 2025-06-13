@@ -20,31 +20,17 @@
             dense
             class="elevation-1 estado-table"
             no-data-text="No se encontraron registros"
-            :items-per-page="10"
           >
-            <template v-slot:header="{ props: { headers } }">
-              <thead>
-                <tr>
-                  <th v-for="header in headers" :key="header.text" class="text-left px-2">
-                    <span class="font-weight-bold">{{ header.text }}</span>
-                  </th>
-                </tr>
-              </thead>
+            <template #item.estado="{ item }">
+              <v-chip :color="getColorEstado(item.estado)" small dark>
+                {{ item.estado }}
+              </v-chip>
             </template>
-            
-            <template v-slot:item="{ item }">
-              <tr>
-                <td class="px-2">{{ item.habitacion }}</td>
-                <td class="px-2">
-                  <v-chip :color="getColorEstado(item.estado)" small dark>
-                    {{ item.estado }}
-                  </v-chip>
-                </td>
-                <td class="px-2">{{ formatFechaCompleta(item.fechaInicio) }}</td>
-                <td class="px-2">{{ formatFechaCompleta(item.fechaFin) }}</td>
-                <td class="px-2">{{ item.motivo }}</td>
-                <td class="px-2">{{ item.responsable }}</td>
-              </tr>
+            <template #item.fechaInicio="{ item }">
+              {{ formatFechaCompleta(item.fechaInicio) }}
+            </template>
+            <template #item.fechaFin="{ item }">
+              {{ formatFechaCompleta(item.fechaFin) }}
             </template>
           </v-data-table>
         </v-card>
@@ -69,17 +55,7 @@ const headers = [
   { text: 'Responsable', value: 'responsable', width: '180px' },
 ];
 
-const historialEstados = ref([
-  {
-    habitacion: '101',
-    estado: 'Ocupada',
-    fechaInicio: '2025-06-13T00:04:00',
-    fechaFin: '2025-06-13T00:04:00',
-    motivo: 'Cambio desde Ocupada',
-    responsable: 'manuel'
-  }
-  // Más datos pueden agregarse aquí
-]);
+const historialEstados = ref([]);
 
 const formatFechaCompleta = (fecha) => {
   if (!fecha) return 'N/A';
@@ -101,13 +77,34 @@ const getColorEstado = (estado) => {
   return 'grey';
 };
 
+const cargarHistorial = async () => {
+  try {
+    const { data } = await axios.get('https://www.hotelcost.somee.com/api/Habitaciones/HistorialCambios');
+    historialEstados.value = data
+      .filter(e =>
+        ['ocupada', 'limpieza', 'mantenimiento'].includes(e.estado_Nuevo?.toLowerCase())
+      )
+      .map(e => ({
+        habitacion: e.numero_Habitacion || 'N/A',
+        estado: e.estado_Nuevo || 'N/A',
+        fechaInicio: e.fecha_Cambio, // Simula la fecha de inicio
+        fechaFin: e.fecha_Cambio,
+        motivo: `Cambio desde ${e.estado_Anterior || 'desconocido'}`,
+        responsable: e.usuario_Modificacion || 'No especificado'
+      }))
+      .sort((a, b) => new Date(b.fechaFin) - new Date(a.fechaFin));
+  } catch (error) {
+    console.error('❌ Error al cargar historial:', error);
+  }
+};
+
 const goToHome = () => {
   router.push('/home');
 };
 
-// onMounted(() => {
-//   cargarHistorial();
-// });
+onMounted(() => {
+  cargarHistorial();
+});
 </script>
 
 <style scoped>
@@ -120,20 +117,11 @@ const goToHome = () => {
 .estado-table {
   background-color: white !important;
   border-radius: 8px;
-  width: 100%;
 }
 
-.estado-table >>> thead tr th {
+.estado-table >>> th {
+  font-weight: bold !important;
   background-color: #f5f5f5 !important;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  font-weight: bold;
-  font-size: 0.875rem;
-}
-
-.estado-table >>> tbody tr td {
-  font-size: 0.8125rem;
 }
 
 .regresar-btn {
