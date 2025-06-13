@@ -20,7 +20,18 @@
             dense
             class="elevation-1 estado-table"
             no-data-text="No se encontraron registros"
+            :items-per-page="10"
           >
+            <template #header="{ props: { headers } }">
+              <thead>
+                <tr>
+                  <th v-for="header in headers" :key="header.text" class="text-left">
+                    {{ header.text }}
+                  </th>
+                </tr>
+              </thead>
+            </template>
+            
             <template #item.estado="{ item }">
               <v-chip :color="getColorEstado(item.estado)" small dark>
                 {{ item.estado }}
@@ -47,12 +58,12 @@ import axios from 'axios';
 const router = useRouter();
 
 const headers = [
-  { text: 'Habitación', value: 'habitacion', width: '120px' },
-  { text: 'Estado', value: 'estado', width: '130px' },
-  { text: 'Fecha de inicio', value: 'fechaInicio', width: '180px' },
-  { text: 'Fecha de salida', value: 'fechaFin', width: '180px' },
-  { text: 'Motivo', value: 'motivo', width: '280px' },
-  { text: 'Responsable', value: 'responsable', width: '180px' },
+  { text: 'Habitación', value: 'habitacion', align: 'start', sortable: true },
+  { text: 'Estado', value: 'estado', sortable: true },
+  { text: 'Fecha de inicio', value: 'fechaInicio', sortable: true },
+  { text: 'Fecha de salida', value: 'fechaFin', sortable: true },
+  { text: 'Motivo', value: 'motivo', sortable: true },
+  { text: 'Responsable', value: 'responsable', sortable: true },
 ];
 
 const historialEstados = ref([]);
@@ -87,7 +98,7 @@ const cargarHistorial = async () => {
       .map(e => ({
         habitacion: e.numero_Habitacion || 'N/A',
         estado: e.estado_Nuevo || 'N/A',
-        fechaInicio: e.fecha_Cambio, // Simula la fecha de inicio
+        fechaInicio: e.fecha_Cambio,
         fechaFin: e.fecha_Cambio,
         motivo: `Cambio desde ${e.estado_Anterior || 'desconocido'}`,
         responsable: e.usuario_Modificacion || 'No especificado'
@@ -119,9 +130,12 @@ onMounted(() => {
   border-radius: 8px;
 }
 
-.estado-table >>> th {
+.estado-table >>> thead tr th {
   font-weight: bold !important;
   background-color: #f5f5f5 !important;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .regresar-btn {
