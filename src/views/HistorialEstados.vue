@@ -45,57 +45,55 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 
 const router = useRouter();
-const historialEstados = ref([]);
 
 const headers = [
+  { text: 'ID', value: 'id', width: '80px' },
   { text: 'Habitación', value: 'habitacion', width: '120px' },
-  { text: 'Estado', value: 'estado', width: '120px' },
-  { text: 'Fecha de inicio', value: 'fecha_inicio', width: '200px' },
-  { text: 'Fecha de salida', value: 'fecha_salida', width: '200px' },
-  { text: 'Motivo', value: 'motivo', width: '300px' },
-  { text: 'Responsable', value: 'responsable', width: '180px' }
+  { text: 'Fecha Inicio', value: 'fechaInicio', width: '180px' },
+  { text: 'Fecha Fin', value: 'fechaFin', width: '180px' },
+  { text: 'Motivo', value: 'motivo', width: '250px' },
+  { text: 'Estado', value: 'estado', width: '140px' },
+  { text: 'Responsable', value: 'responsable', width: '200px' },
 ];
 
-const getColorEstado = (estado) => {
-  const colores = {
-    'Ocupada': 'red',
-    'Limpieza': 'blue',
-    'Mantenimiento': 'orange',
-    'Disponible': 'green',
-    'Reservada': 'purple'
+const historialEstados = ref([]);
+
+const formatFechaCompleta = (fecha) => {
+  if (!fecha) return 'N/A';
+  const options = {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: true,
   };
-  return colores[estado] || 'grey';
+  return new Date(fecha).toLocaleString('es-MX', options);
 };
 
-const formatFecha = (fecha) => {
-  if (!fecha) return 'N/A';
-  const date = new Date(fecha);
-  return isNaN(date.getTime())
-    ? 'Fecha inválida'
-    : date.toLocaleString('es-MX', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+const getColorEstado = (estado) => {
+  const estadoLower = estado.toLowerCase();
+  if (estadoLower.includes('mantenimiento')) return 'orange';
+  if (estadoLower.includes('finalizado')) return 'green';
+  if (estadoLower.includes('ocupada')) return 'red';
+  if (estadoLower.includes('limpieza')) return 'blue';
+  return 'grey';
 };
 
 const cargarHistorial = async () => {
   try {
-    // Aquí deberías consumir un endpoint nuevo o combinado que traiga toda esta info
-    const { data } = await axios.get('https://hotelcost.somee.com/api/Habitaciones/HistorialEstadosYTareas');
+    const { data } = await axios.get('https://www.hotelcost.somee.com/api/Habitaciones/HistorialCambios');
 
-    historialEstados.value = data.map(e => ({
-      habitacion: e.numero_habitacion || 'N/A',
-      estado: e.estado || 'N/A',
-      fecha_inicio: e.fecha_inicio,
-      fecha_salida: e.fecha_salida,
-      motivo: e.descripcion || 'Sin motivo',
-      responsable: e.usuario_asignado || 'Sin asignar'
-    }));
+    historialEstados.value = data
+      .filter(e => ['ocupada', 'limpieza', 'mantenimiento'].some(f => e.estado_Nuevo.toLowerCase().includes(f)))
+      .map(e => ({
+        id: e.id_Historial,
+        habitacion: e.numero_Habitacion || 'N/A',
+        fechaInicio: null, // no viene del backend
+        fechaFin: e.fecha_Cambio,
+        motivo: `Cambio desde ${e.estado_Anterior}`,
+        estado: e.estado_Nuevo,
+        responsable: e.usuario_Modificacion || 'No especificado',
+      }))
+      .sort((a, b) => new Date(b.fechaFin) - new Date(a.fechaFin));
   } catch (error) {
-    console.error('❌ Error al cargar historial:', error);
+    console.error('❌ Error al cargar historial de cambios:', error);
   }
 };
 
@@ -107,6 +105,7 @@ onMounted(() => {
   cargarHistorial();
 });
 </script>
+
 
 <style scoped>
 .estado-historial-container {
