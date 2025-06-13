@@ -26,9 +26,11 @@
                 {{ item.estado }}
               </v-chip>
             </template>
-
-            <template #item.fecha="{ item }">
-              {{ formatFecha(item.fecha) }}
+            <template #item.fecha_inicio="{ item }">
+              {{ formatFecha(item.fecha_inicio) }}
+            </template>
+            <template #item.fecha_salida="{ item }">
+              {{ formatFecha(item.fecha_salida) }}
             </template>
           </v-data-table>
         </v-card>
@@ -46,10 +48,12 @@ const router = useRouter();
 const historialEstados = ref([]);
 
 const headers = [
-  { text: 'Número de Habitación', value: 'numero', width: '150px' },
-  { text: 'Estado', value: 'estado', width: '150px' },
-  { text: 'Fecha de Cambio', value: 'fecha', width: '200px' },
-  { text: 'Usuario', value: 'usuario', width: '200px' },
+  { text: 'Habitación', value: 'habitacion', width: '120px' },
+  { text: 'Estado', value: 'estado', width: '120px' },
+  { text: 'Fecha de inicio', value: 'fecha_inicio', width: '200px' },
+  { text: 'Fecha de salida', value: 'fecha_salida', width: '200px' },
+  { text: 'Motivo', value: 'motivo', width: '300px' },
+  { text: 'Responsable', value: 'responsable', width: '180px' }
 ];
 
 const getColorEstado = (estado) => {
@@ -66,8 +70,8 @@ const getColorEstado = (estado) => {
 const formatFecha = (fecha) => {
   if (!fecha) return 'N/A';
   const date = new Date(fecha);
-  return isNaN(date.getTime()) 
-    ? 'Fecha inválida' 
+  return isNaN(date.getTime())
+    ? 'Fecha inválida'
     : date.toLocaleString('es-MX', {
         year: 'numeric',
         month: '2-digit',
@@ -79,20 +83,19 @@ const formatFecha = (fecha) => {
 
 const cargarHistorial = async () => {
   try {
-    const { data } = await axios.get('https://hotelcost.somee.com/api/Habitaciones/HistorialEstados');
-    
-    // Filtrar solo los estados que nos interesan
-    historialEstados.value = data
-      .filter(e => ['Ocupada', 'Limpieza', 'Mantenimiento'].includes(e.estado))
-      .map(e => ({
-        numero: e.numero || 'N/A',
-        estado: e.estado || 'N/A',
-        fecha: e.fecha,
-        usuario: e.usuario || 'No especificado'
-      }))
-      .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    // Aquí deberías consumir un endpoint nuevo o combinado que traiga toda esta info
+    const { data } = await axios.get('https://hotelcost.somee.com/api/Habitaciones/HistorialEstadosYTareas');
+
+    historialEstados.value = data.map(e => ({
+      habitacion: e.numero_habitacion || 'N/A',
+      estado: e.estado || 'N/A',
+      fecha_inicio: e.fecha_inicio,
+      fecha_salida: e.fecha_salida,
+      motivo: e.descripcion || 'Sin motivo',
+      responsable: e.usuario_asignado || 'Sin asignar'
+    }));
   } catch (error) {
-    console.error('❌ Error al cargar historial de estados:', error);
+    console.error('❌ Error al cargar historial:', error);
   }
 };
 
