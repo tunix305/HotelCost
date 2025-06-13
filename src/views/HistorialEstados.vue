@@ -20,19 +20,20 @@
             dense
             class="elevation-1 estado-table"
             no-data-text="No se encontraron registros"
+            :items-per-page="10"
           >
             <template #item.fechaInicio="{ item }">
-              {{ formatFechaCompleta(item.fechaInicio) }}
+              {{ formatFechaImagen(item.fechaInicio) }}
             </template>
 
             <template #item.fechaFin="{ item }">
-              {{ formatFechaCompleta(item.fechaFin) }}
+              {{ formatFechaImagen(item.fechaFin) }}
             </template>
 
             <template #item.estado="{ item }">
-              <span :style="{ color: getColorEstado(item.estado), fontWeight: 'bold' }">
+              <v-chip :color="getColorEstado(item.estado)" small dark>
                 {{ item.estado }}
-              </span>
+              </v-chip>
             </template>
           </v-data-table>
         </v-card>
@@ -49,37 +50,43 @@ import axios from 'axios';
 const router = useRouter();
 
 const headers = [
-  { text: 'ID', value: 'id', width: '80px' },
-  { text: 'Habitación', value: 'habitacion', width: '120px' },
-  { text: 'Fecha Inicio', value: 'fechaInicio', width: '180px' },
-  { text: 'Fecha Fin', value: 'fechaFin', width: '180px' },
-  { text: 'Motivo', value: 'motivo', width: '250px' },
-  { text: 'Estado', value: 'estado', width: '140px' },
-  { text: 'Responsable', value: 'responsable', width: '200px' },
+  { text: 'ID', value: 'id', width: '5%', align: 'center' },
+  { text: 'Habitación', value: 'habitacion', width: '10%', align: 'center' },
+  { text: 'Fecha Inicio', value: 'fechaInicio', width: '20%' },
+  { text: 'Fecha Fin', value: 'fechaFin', width: '20%' },
+  { text: 'Motivo', value: 'motivo', width: '25%' },
+  { text: 'Estado', value: 'estado', width: '15%', align: 'center' },
+  { text: 'Responsable', value: 'responsable', width: '15%' },
 ];
 
 const historialEstados = ref([]);
 
-const formatFechaCompleta = (fecha) => {
+const formatFechaImagen = (fecha) => {
   if (!fecha) return 'N/A';
-  const options = {
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', hour12: true,
-  };
-  return new Date(fecha).toLocaleString('es-MX', options);
+  const date = new Date(fecha);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'p.m.' : 'a.m.';
+  const formattedHours = hours % 12 || 12;
+  
+  return `${day}/${month}/${year}, ${formattedHours}:${minutes} ${ampm}`;
 };
 
 const getColorEstado = (estado) => {
   const estadoLower = estado.toLowerCase();
   if (estadoLower.includes('mantenimiento')) return 'orange';
   if (estadoLower.includes('finalizado')) return 'green';
+  if (estadoLower.includes('ocupada')) return 'red';
+  if (estadoLower.includes('limpieza')) return 'blue';
   return 'grey';
 };
 
 const cargarHistorial = async () => {
   try {
     const { data } = await axios.get('https://hotelcost.somee.com/api/Habitaciones/HistorialEstados');
-
     historialEstados.value = data.map(e => ({
       id: e.id,
       habitacion: e.habitacion || e.numero || 'N/A',
@@ -107,7 +114,7 @@ onMounted(() => {
 .estado-historial-container {
   background-color: #e0f7fa;
   min-height: 100vh;
-  padding-top: 100px;
+  padding-top: 80px;
 }
 
 .estado-table {
@@ -118,6 +125,11 @@ onMounted(() => {
 .estado-table >>> th {
   font-weight: bold !important;
   background-color: #f5f5f5 !important;
+  font-size: 14px;
+}
+
+.estado-table >>> td {
+  font-size: 13px;
 }
 
 .regresar-btn {
@@ -132,5 +144,9 @@ onMounted(() => {
 .regresar-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.v-card {
+  border-radius: 12px;
 }
 </style>
