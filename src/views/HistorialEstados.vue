@@ -1,34 +1,34 @@
 <template>
   <v-app>
-    <!-- NAVBAR -->
-    <v-app-bar app color="#1a1a1a" dark height="auto" class="navbar">
-      <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
-        <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="60" class="logo-img" />
-        <h1 class="navbar-title white--text text-center">Gestión de Habitaciones</h1>
-        <div class="d-flex align-center flex-wrap justify-end mt-2 mt-md-0">
-          <v-btn class="btn-historial mr-2" @click="verHistorial">HISTORIAL DE CAMBIOS</v-btn>
-          <v-btn class="btn-regresar" @click="goToHome">REGRESAR</v-btn>
-        </div>
+    <v-app-bar app color="#1a1a1a" dark>
+      <v-container fluid class="d-flex align-center justify-space-between px-6">
+        <h2 class="white--text text-h6 font-weight-bold">Historial Completo de Estados</h2>
+        <v-btn class="regresar-btn" @click="goToHome">REGRESAR</v-btn>
       </v-container>
     </v-app-bar>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <v-main class="habitaciones-container">
+    <v-main class="estado-historial-container">
       <v-container>
         <v-card elevation="8" class="pa-4">
           <h3 class="text-h6 text-center font-weight-bold mb-4">
-            Historial de Habitaciones en Mantenimiento
+            Habitaciones con estado Ocupada, Limpieza o Mantenimiento
           </h3>
 
           <v-data-table
             :headers="headers"
-            :items="historial"
-            class="historial-table"
+            :items="historialEstados"
             dense
+            class="elevation-1 estado-table"
             no-data-text="No se encontraron registros"
           >
             <template #item.estado="{ item }">
-              <span :class="['estado', getEstadoColor(item.estado)]">{{ item.estado }}</span>
+              <v-chip :color="getColorEstado(item.estado)" small dark>
+                {{ item.estado }}
+              </v-chip>
+            </template>
+
+            <template #item.fecha="{ item }">
+              {{ formatFecha(item.fecha) }}
             </template>
           </v-data-table>
         </v-card>
@@ -39,41 +39,39 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 
 const router = useRouter();
-const route = useRoute();
-
-const username = route.query.username || '';
-const role = route.query.role || '';
-
-const historial = ref([]);
+const historialEstados = ref([]);
 
 const headers = [
-  { text: 'ID', value: 'id' },
-  { text: 'Habitación', value: 'habitacion' },
-  { text: 'Fecha Inicio', value: 'fechaInicio' },
-  { text: 'Fecha Fin', value: 'fechaFin' },
-  { text: 'Motivo', value: 'motivo' },
-  { text: 'Estado', value: 'estado' },
-  { text: 'Responsable', value: 'responsable' },
+  { text: 'Número de Habitación', value: 'numero', width: '150px' },
+  { text: 'Estado', value: 'estado', width: '150px' },
+  { text: 'Fecha de Cambio', value: 'fecha', width: '200px' },
+  { text: 'Usuario', value: 'usuario', width: '200px' },
 ];
 
-const getEstadoColor = (estado) => {
-  if (estado.includes('mantenimiento')) return 'color-naranja';
-  if (estado.includes('Finalizado')) return 'color-gris';
-  return '';
+const getColorEstado = (estado) => {
+  const colores = {
+    'Ocupada': 'red',
+    'Limpieza': 'blue',
+    'Mantenimiento': 'orange',
+    'Disponible': 'green',
+    'Reservada': 'purple'
+  };
+  return colores[estado] || 'grey';
 };
 
-const formatFecha = (fechaRaw) => {
-  const fecha = new Date(fechaRaw);
-  return isNaN(fecha.getTime())
-    ? 'Fecha inválida'
-    : fecha.toLocaleString('es-MX', {
-        day: '2-digit',
-        month: '2-digit',
+const formatFecha = (fecha) => {
+  if (!fecha) return 'N/A';
+  const date = new Date(fecha);
+  return isNaN(date.getTime()) 
+    ? 'Fecha inválida' 
+    : date.toLocaleString('es-MX', {
         year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
         hour: '2-digit',
         minute: '2-digit'
       });
@@ -82,38 +80,24 @@ const formatFecha = (fechaRaw) => {
 const cargarHistorial = async () => {
   try {
     const { data } = await axios.get('https://hotelcost.somee.com/api/Habitaciones/HistorialEstados');
-    historial.value = data.map(e => ({
-      id: e.id || 'N/A',
-      habitacion: e.numero || 'N/A',
-      fechaInicio: formatFecha(e.fechaInicio),
-      fechaFin: formatFecha(e.fechaFin),
-      motivo: e.motivo || 'N/A',
-      estado: e.estado || 'N/A',
-      responsable: e.usuario || 'N/A'
-    }));
+    
+    // Filtrar solo los estados que nos interesan
+    historialEstados.value = data
+      .filter(e => ['Ocupada', 'Limpieza', 'Mantenimiento'].includes(e.estado))
+      .map(e => ({
+        numero: e.numero || 'N/A',
+        estado: e.estado || 'N/A',
+        fecha: e.fecha,
+        usuario: e.usuario || 'No especificado'
+      }))
+      .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
   } catch (error) {
-    console.error('❌ Error al cargar historial:', error);
+    console.error('❌ Error al cargar historial de estados:', error);
   }
 };
 
 const goToHome = () => {
-  router.push({
-    path: '/home',
-    query: {
-      username,
-      role
-    }
-  });
-};
-
-const verHistorial = () => {
-  router.push({
-    path: '/historial-cambios',
-    query: {
-      username,
-      role
-    }
-  });
+  router.push('/home');
 };
 
 onMounted(() => {
@@ -122,92 +106,33 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.habitaciones-container {
-  background-color: #22cbc3;
-  min-height: calc(100vh - 100px);
-  padding: 100px 0 20px;
+.estado-historial-container {
+  background-color: #e0f7fa;
+  min-height: 100vh;
+  padding-top: 100px;
 }
 
-.historial-table {
-  background: white;
-  border-radius: 12px;
+.estado-table {
+  background-color: white !important;
+  border-radius: 8px;
 }
 
-.estado {
-  font-weight: bold;
+.estado-table >>> th {
+  font-weight: bold !important;
+  background-color: #f5f5f5 !important;
 }
 
-.color-naranja {
-  color: #f57c00;
-}
-
-.color-gris {
-  color: #757575;
-}
-
-.navbar {
-  background-color: #1a1a1a;
-}
-
-.navbar-title {
-  font-size: 1.25rem;
-  font-weight: bold;
-  margin: 0;
-  flex: 1;
-}
-
-.logo-img {
-  max-width: 60px;
-}
-
-.btn-regresar {
+.regresar-btn {
   background-color: #fdd835 !important;
   color: #1a1a1a !important;
   font-weight: bold;
+  border-radius: 999px;
   padding: 10px 25px;
-  border-radius: 999px;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-  transition: 0.3s ease;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.btn-regresar:hover {
-  background-color: #ffeb3b !important;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.btn-historial {
-  background-color: #ffffff !important;
-  color: #1a1a1a !important;
-  font-weight: bold;
-  padding: 10px 20px;
-  border-radius: 999px;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-  transition: 0.3s ease;
-}
-
-.btn-historial:hover {
-  background-color: #fdd835 !important;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-@media (max-width: 600px) {
-  .navbar-title {
-    font-size: 1rem;
-    margin: 8px 0;
-  }
-
-  .logo-img {
-    max-width: 45px;
-  }
-
-  .btn-historial,
-  .btn-regresar {
-    font-size: 0.7rem !important;
-    padding: 6px 12px !important;
-    min-width: unset;
-    margin-top: 6px;
-  }
+.regresar-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 </style>

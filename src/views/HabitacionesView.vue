@@ -1,124 +1,132 @@
 <template>
   <v-app>
-    <!-- NAVBAR -->
+    <!-- Barra de navegación -->
     <v-app-bar app color="#1a1a1a" dark height="auto" class="navbar">
-      <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
-        <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="60" class="logo-img" />
-        <h1 class="navbar-title white--text text-center">Gestión de Habitaciones</h1>
-        <div class="d-flex align-center flex-wrap justify-end mt-2 mt-md-0">
-          <v-btn class="btn-historial mr-2" @click="verHistorial">HISTORIAL DE CAMBIOS</v-btn>
-          <v-btn class="btn-regresar" @click="goToHome">REGRESAR</v-btn>
-        </div>
-      </v-container>
-    </v-app-bar>
+  <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
+    <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="60" class="logo-img" />
 
-    <!-- CONTENIDO PRINCIPAL -->
+    <h1 class="navbar-title white--text text-center">Gestión de Habitaciones</h1>
+
+    <div class="d-flex align-center flex-wrap justify-end mt-2 mt-md-0">
+      <v-btn class="btn-historial mr-2" @click="verHistorial">HISTORIAL DE CAMBIOS</v-btn>
+      <v-btn class="btn-regresar" @click="goToHome">REGRESAR</v-btn>
+    </div>
+  </v-container>
+</v-app-bar>
+
+
+    <!-- Contenido principal con dos secciones separadas -->
     <v-main class="habitaciones-container">
-      <v-container>
-        <v-card elevation="8" class="pa-4">
-          <h3 class="text-h6 text-center font-weight-bold mb-4">
-            Historial de Habitaciones en Mantenimiento
-          </h3>
+      <v-container fluid>
+        <v-row dense justify="center" align="start" class="section-row">
+          <!-- Card Disponibles -->
+          <v-col cols="12" md="5">
+            <v-card class="section-card pa-6">
+              <div class="section-header disponible">
+                <v-icon left>mdi-checkbox-marked-circle</v-icon>
+                Disponibles ({{ habitacionesDisponibles.length }})
+              </div>
+              <v-simple-table class="custom-table larger-table">
+                <thead>
+                  <tr>
+                    <th class="header-cell header-title">NÚMERO DE HABITACIÓN</th>
+                    <th class="header-cell header-title">ESTADO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="room in habitacionesDisponibles" :key="room.id_Habitacion">
+                    <td class="room-number">{{ room.numero_Habitacion }}</td>
+                    <td class="estado-text">{{ room.estado_Actual }}</td>
+                  </tr>
+                </tbody>
+              </v-simple-table>
+            </v-card>
+          </v-col>
 
-          <v-data-table
-            :headers="headers"
-            :items="historial"
-            class="historial-table"
-            dense
-            no-data-text="No se encontraron registros"
-          >
-            <template #item.estado="{ item }">
-              <span :class="['estado', getEstadoColor(item.estado)]">{{ item.estado }}</span>
-            </template>
-          </v-data-table>
-        </v-card>
+          <!-- Card No Disponibles -->
+          <v-col cols="12" md="5">
+            <v-card class="section-card pa-6">
+              <div class="section-header no-disponible">
+                <v-icon left>mdi-close-circle</v-icon>
+                No disponibles ({{ habitacionesNoDisponibles.length }})
+              </div>
+              <v-simple-table class="custom-table larger-table">
+                <thead>
+                  <tr>
+                    <th class="header-cell header-title">NÚMERO DE HABITACIÓN</th>
+                    <th class="header-cell header-title">ESTADO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="room in habitacionesNoDisponibles" :key="room.id_Habitacion">
+                    <td class="room-number">{{ room.numero_Habitacion }}</td>
+                    <td class="estado-text">{{ room.estado_Actual }}</td>
+                  </tr>
+                </tbody>
+              </v-simple-table>
+            </v-card>
+          </v-col>
+        </v-row>
       </v-container>
     </v-main>
   </v-app>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+<script>
 import axios from 'axios';
 
-const router = useRouter();
-const route = useRoute();
-
-const username = route.query.username || '';
-const role = route.query.role || '';
-
-const historial = ref([]);
-
-const headers = [
-  { text: 'ID', value: 'id' },
-  { text: 'Habitación', value: 'habitacion' },
-  { text: 'Fecha Inicio', value: 'fechaInicio' },
-  { text: 'Fecha Fin', value: 'fechaFin' },
-  { text: 'Motivo', value: 'motivo' },
-  { text: 'Estado', value: 'estado' },
-  { text: 'Responsable', value: 'responsable' },
-];
-
-const getEstadoColor = (estado) => {
-  if (estado.includes('mantenimiento')) return 'color-naranja';
-  if (estado.includes('Finalizado')) return 'color-gris';
-  return '';
-};
-
-const formatFecha = (fechaRaw) => {
-  const fecha = new Date(fechaRaw);
-  return isNaN(fecha.getTime())
-    ? 'Fecha inválida'
-    : fecha.toLocaleString('es-MX', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+export default {
+  name: 'HabitacionesView',
+  data() {
+    return {
+      habitaciones: [],
+      username: '',
+      role: '',
+    };
+  },
+  computed: {
+    habitacionesDisponibles() {
+      return this.habitaciones.filter(h => h.estado_Actual.toLowerCase() === 'disponible');
+    },
+    habitacionesNoDisponibles() {
+      return this.habitaciones.filter(h => h.estado_Actual.toLowerCase() !== 'disponible');
+    },
+  },
+  methods: {
+    goToHome() {
+      this.$router.push({
+        path: '/home',
+        query: {
+          username: this.username,
+          role: this.role,
+        },
       });
+    },
+    verHistorial() {
+      this.$router.push({
+        path: '/historial-habitaciones',
+        query: {
+          username: this.username,
+          role: this.role,
+        },
+      });
+    },
+    async cargarHabitaciones() {
+      try {
+        const res = await axios.get('https://hotelcost.somee.com/api/Habitaciones/EstadosActualizados');
+        this.habitaciones = res.data;
+      } catch (err) {
+        console.error('❌ Error al cargar habitaciones:', err);
+      }
+    },
+  },
+  mounted() {
+    const query = this.$route.query;
+    this.username = query.username || 'Invitado';
+    this.role = query.role || 'Sin rol asignado';
+    this.cargarHabitaciones();
+  },
 };
-
-const cargarHistorial = async () => {
-  try {
-    const { data } = await axios.get('https://hotelcost.somee.com/api/Habitaciones/HistorialEstados');
-    historial.value = data.map(e => ({
-      id: e.id || 'N/A',
-      habitacion: e.numero || 'N/A',
-      fechaInicio: formatFecha(e.fechaInicio),
-      fechaFin: formatFecha(e.fechaFin),
-      motivo: e.motivo || 'N/A',
-      estado: e.estado || 'N/A',
-      responsable: e.usuario || 'N/A'
-    }));
-  } catch (error) {
-    console.error('❌ Error al cargar historial:', error);
-  }
-};
-
-const goToHome = () => {
-  router.push({
-    path: '/home',
-    query: {
-      username,
-      role
-    }
-  });
-};
-
-const verHistorial = () => {
-  router.push({
-    path: '/historial-cambios',
-    query: {
-      username,
-      role
-    }
-  });
-};
-
-onMounted(() => {
-  cargarHistorial();
-});
 </script>
 
 <style scoped>
@@ -128,36 +136,68 @@ onMounted(() => {
   padding: 100px 0 20px;
 }
 
-.historial-table {
-  background: white;
-  border-radius: 12px;
+.section-row {
+  gap: 24px;
 }
 
-.estado {
+.section-card {
+  background-color: rgba(0, 0, 0, 0.85);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  color: white;
+  font-weight: 600;
+}
+
+.section-header.disponible {
+  background: rgba(34, 203, 195, 0.15);
+}
+
+.section-header.no-disponible {
+  background: rgba(255, 189, 189, 0.15);
+}
+
+.section-header .v-icon {
+  color: #fdd835;
+  margin-right: 8px;
+}
+
+.custom-table {
+  background: transparent !important;
+  color: white;
+  padding: 8px;
+}
+
+.header-cell {
+  color: white;
   font-weight: bold;
+  background: transparent !important;
+  padding: 8px;
 }
 
-.color-naranja {
-  color: #f57c00;
+.header-title {
+  font-size: 1.2rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-.color-gris {
-  color: #757575;
-}
-
-.navbar {
-  background-color: #1a1a1a;
-}
-
-.navbar-title {
-  font-size: 1.25rem;
+.room-number {
   font-weight: bold;
-  margin: 0;
-  flex: 1;
+  font-size: 1.8rem;
+  color: #fff;
+  padding: 8px;
 }
 
-.logo-img {
-  max-width: 60px;
+.estado-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+  padding: 8px;
 }
 
 .btn-regresar {
@@ -168,12 +208,13 @@ onMounted(() => {
   border-radius: 999px;
   text-transform: uppercase;
   font-size: 0.9rem;
+  box-shadow: none;
   transition: 0.3s ease;
 }
 
 .btn-regresar:hover {
   background-color: #ffeb3b !important;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .btn-historial {
@@ -184,12 +225,23 @@ onMounted(() => {
   border-radius: 999px;
   text-transform: uppercase;
   font-size: 0.9rem;
+  box-shadow: none;
   transition: 0.3s ease;
 }
 
 .btn-historial:hover {
   background-color: #fdd835 !important;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+.navbar-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0;
+  flex: 1;
+}
+
+.logo-img {
+  max-width: 60px;
 }
 
 @media (max-width: 600px) {
@@ -202,12 +254,12 @@ onMounted(() => {
     max-width: 45px;
   }
 
-  .btn-historial,
-  .btn-regresar {
+  .btn-historial, .btn-regresar {
     font-size: 0.7rem !important;
     padding: 6px 12px !important;
     min-width: unset;
     margin-top: 6px;
   }
 }
+
 </style>
