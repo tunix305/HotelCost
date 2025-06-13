@@ -22,6 +22,16 @@
             no-data-text="No se encontraron registros"
             :items-per-page="10"
           >
+            <template #header="{ headers }">
+              <thead>
+                <tr>
+                  <th v-for="header in headers" :key="header.text" class="text-left">
+                    {{ header.text }}
+                  </th>
+                </tr>
+              </thead>
+            </template>
+
             <template #item.fechaInicio="{ item }">
               {{ formatFechaImagen(item.fechaInicio) }}
             </template>
@@ -126,10 +136,16 @@ onMounted(() => {
   font-weight: bold !important;
   background-color: #f5f5f5 !important;
   font-size: 14px;
+  padding: 12px 16px !important;
 }
 
 .estado-table >>> td {
   font-size: 13px;
+  padding: 8px 16px !important;
+}
+
+.estado-table >>> thead {
+  background-color: #f5f5f5;
 }
 
 .regresar-btn {
@@ -148,5 +164,9 @@ onMounted(() => {
 
 .v-card {
   border-radius: 12px;
+}
+
+.v-data-table-header {
+  background-color: #f5f5f5 !important;
 }
 </style>
