@@ -1,19 +1,22 @@
 <template>
   <v-app>
     <!-- Barra de navegación -->
-    <v-app-bar app color="#1a1a1a" dark height="auto" class="navbar">
-  <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
-    <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="60" class="logo-img" />
+    <v-app-bar app color="#1a1a1a" dark height="100">
+      <v-container fluid class="d-flex align-center justify-space-between px-6">
+        <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="60" />
 
-    <h1 class="navbar-title white--text text-center">Gestión de Habitaciones</h1>
+        <h1 class="white--text text-h5 font-weight-bold text-center flex-grow-1 mb-0">
+          Gestión de Habitaciones
+        </h1>
 
-    <div class="d-flex align-center flex-wrap justify-end mt-2 mt-md-0">
-      <v-btn class="btn-historial mr-2" @click="verHistorial">HISTORIAL DE CAMBIOS</v-btn>
-      <v-btn class="btn-regresar" @click="goToHome">REGRESAR</v-btn>
-    </div>
-  </v-container>
-</v-app-bar>
-
+        <div class="d-flex align-center">
+          <v-btn class="btn-historial mr-3" @click="verHistorial">
+            HISTORIAL DE CAMBIOS
+          </v-btn>
+          <v-btn class="btn-regresar" @click="goToHome">REGRESAR</v-btn>
+        </div>
+      </v-container>
+    </v-app-bar>
 
     <!-- Contenido principal con dos secciones separadas -->
     <v-main class="habitaciones-container">
@@ -113,7 +116,7 @@ export default {
     },
     async cargarHabitaciones() {
       try {
-        const res = await axios.get('https://hotelcost.somee.com/api/Habitaciones/EstadosActualizados');
+        const { data } = await axios.get('https://hotelcost.somee.com/api/Habitaciones/HistorialEstados');
         this.habitaciones = res.data;
       } catch (err) {
         console.error('❌ Error al cargar habitaciones:', err);
@@ -233,33 +236,4 @@ export default {
   background-color: #fdd835 !important;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
-.navbar-title {
-  font-size: 1.25rem;
-  font-weight: bold;
-  margin: 0;
-  flex: 1;
-}
-
-.logo-img {
-  max-width: 60px;
-}
-
-@media (max-width: 600px) {
-  .navbar-title {
-    font-size: 1rem;
-    margin: 8px 0;
-  }
-
-  .logo-img {
-    max-width: 45px;
-  }
-
-  .btn-historial, .btn-regresar {
-    font-size: 0.7rem !important;
-    padding: 6px 12px !important;
-    min-width: unset;
-    margin-top: 6px;
-  }
-}
-
 </style>
