@@ -115,7 +115,7 @@ export default {
     async obtenerHabitaciones() {
       try {
         const response = await axios.get(
-          "https://hotelcost.somee.com/api/Habitaciones/ListaSeleccion"
+          "https://hotelcostmx.somee.com/api/Habitaciones/ListaSeleccion"
         );
         this.rooms = response.data;
       } catch (error) {
@@ -126,7 +126,7 @@ export default {
     async obtenerUsuariosAsignables() {
       try {
         const response = await axios.get(
-          "https://hotelcost.somee.com/api/Users/Asignables"
+          "https://hotelcostmx.somee.com/api/Users/Asignables"
         );
         this.asignables = response.data.map((u) => ({
           id: u.id,
@@ -166,7 +166,7 @@ export default {
 
       try {
         const response = await axios.post(
-          "https://hotelcost.somee.com/api/Tareas",
+          "https://hotelcostmx.somee.com/api/Tareas",
           nuevaTarea
         );
         alert(response.data.message || "✅ Tarea guardada correctamente");
@@ -193,19 +193,13 @@ export default {
 </script>
 
 <style scoped>
-/* ==================================================
-   1) Evita que el contenido se “pise” con el AppBar
-   ================================================== */
 .tareas-fondo {
   background-color: #22cbc3;
-  /* padding-top = altura del app-bar (100px) */
+
   padding-top: 100px !important;
   min-height: calc(100vh - 100px);
 }
 
-/* ==================================================
-   2) Estilos para la tarjeta que contiene el formulario
-   ================================================== */
 .tarea-card {
   background-color: rgba(0, 0, 0, 0.85);
   color: white;
@@ -217,17 +211,11 @@ export default {
   max-width: 600px;
 }
 
-/* ==================================================
-   3) Campos con fondo oscuro tenue
-   ================================================== */
 .custom-field {
   margin-bottom: 20px;
   color: white;
 }
 
-/* ==================================================
-   4) Botón “ACTUALIZAR ESTADO”
-   ================================================== */
 .custom-reservar-btn {
   background-color: #fbc02d !important;
   color: black !important;
@@ -244,9 +232,6 @@ export default {
   background-color: #fdd835 !important;
 }
 
-/* ==================================================
-   5) Botón “REGRESAR” más compacto
-   ================================================== */
 .custom-back-btn {
   background-color: #fbc02d !important;
   color: black !important;
@@ -263,28 +248,20 @@ export default {
   background-color: #fdd835 !important;
 }
 
-/* ==================================================
-   6) Asegurarse de que las columnas del AppBar
-      se distribuyan correctamente (nunca se solapen)
-   ================================================== */
 .navbar-container {
   position: relative;
   width: 100%;
 }
 
-/* ==================================================
-   7) Si quieres ajustes adicionales en móvil (opcional)
-   ================================================== */
 @media (max-width: 600px) {
-  /* En pantallas muy angostas, el botón REGRESAR puede
-     reducir aún más su padding/tamaño */
+
   .custom-back-btn {
     padding: 2px 10px !important;
     height: 32px !important;
     font-size: 0.7rem !important;
   }
 }
-/* Estilo base del título y logo */
+
 .navbar-title {
   font-size: 1.25rem;
   font-weight: bold;
@@ -296,7 +273,6 @@ export default {
   max-width: 50px;
 }
 
-/* Ajustes para pantallas pequeñas */
 @media (max-width: 600px) {
   .navbar-title {
     font-size: 1rem;

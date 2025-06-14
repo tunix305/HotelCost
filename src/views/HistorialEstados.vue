@@ -70,7 +70,7 @@ const getColorEstado = (estado) => {
 
 const cargarHistorial = async () => {
   try {
-    const { data } = await axios.get('https://www.hotelcost.somee.com/api/Habitaciones/HistorialCambios');
+    const { data } = await axios.get('https://hotelcostmx.somee.com/api/Habitaciones/HistorialCambios');
     historialEstados.value = data
       .filter(e =>
         ['ocupada', 'limpieza', 'mantenimiento'].includes(e.estado_Nuevo?.toLowerCase())

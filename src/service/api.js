@@ -1,15 +1,14 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://hotelcost.somee.com/api',
-  timeout: 10000, // 10 segundos
+  baseURL: 'https://hotelcostmx.somee.com/api',
+  timeout: 10000, 
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   }
 });
 
-// Interceptor para manejar errores globalmente
 api.interceptors.response.use(
   response => response,
   error => {

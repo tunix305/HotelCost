@@ -1,6 +1,5 @@
 <template>
   <v-app>
-    <!-- Barra de navegación -->
     <v-app-bar app color="#1a1a1a" dark height="auto" class="navbar">
   <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
     <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="60" class="logo-img" />
@@ -15,11 +14,9 @@
 </v-app-bar>
 
 
-    <!-- Contenido principal con dos secciones separadas -->
     <v-main class="habitaciones-container">
       <v-container fluid>
         <v-row dense justify="center" align="start" class="section-row">
-          <!-- Card Disponibles -->
           <v-col cols="12" md="5">
             <v-card class="section-card pa-6">
               <div class="section-header disponible">
@@ -43,7 +40,6 @@
             </v-card>
           </v-col>
 
-          <!-- Card No Disponibles -->
           <v-col cols="12" md="5">
             <v-card class="section-card pa-6">
               <div class="section-header no-disponible">
@@ -113,7 +109,7 @@ export default {
     },
     async cargarHabitaciones() {
       try {
-        const res = await axios.get('https://hotelcost.somee.com/api/Habitaciones/EstadosActualizados');
+        const res = await axios.get('https://hotelcostmx.somee.com/api/Habitaciones/EstadosActualizados');
         this.habitaciones = res.data;
       } catch (err) {
         console.error('❌ Error al cargar habitaciones:', err);

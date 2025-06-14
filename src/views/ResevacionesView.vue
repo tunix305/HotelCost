@@ -1,6 +1,5 @@
 <template>
   <v-app>
-    <!-- Navbar alineada -->
     <v-app-bar app color="#1a1a1a" dark height="auto" class="navbar">
   <v-container fluid class="d-flex align-center justify-space-between flex-wrap px-6">
     <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="50" class="logo-img" />
@@ -9,11 +8,9 @@
   </v-container>
 </v-app-bar>
 
-    <!-- Main con fondo turquesa y cards más abajo -->
     <v-main class="reservas-main pa-0">
       <v-container fluid class="pa-0">
         <v-row no-gutters justify="center" align="start" class="cards-wrapper">
-          <!-- Tarjeta de formulario -->
           <v-col cols="12" md="5" class="px-4">
             <v-card class="gest-card">
               <div class="card-header form-header">
@@ -80,7 +77,6 @@
             </v-card>
           </v-col>
 
-          <!-- Tarjeta de habitaciones ocupadas -->
           <v-col cols="12" md="6" class="px-4">
             <v-card class="gest-card">
               <div class="card-header occupied-header">
@@ -105,7 +101,6 @@
           </v-col>
         </v-row>
 
-        <!-- Diálogo de confirmación -->
         <v-dialog v-model="confirmacionDialog" max-width="500">
           <v-card>
             <v-card-title class="text-h5 font-weight-bold">Confirmar Reserva</v-card-title>
@@ -130,7 +125,6 @@
           </v-card>
         </v-dialog>
 
-        <!-- Snackbar de feedback -->
         <v-snackbar v-model="snackbar" timeout="3000" color="green">
           {{ snackbarMessage }}
         </v-snackbar>
@@ -189,7 +183,7 @@ export default {
     async cargarHabitacionesDisponibles() {
       try {
         const res = await axios.get(
-          'https://hotelcost.somee.com/api/Habitaciones/EstadosActualizados'
+          'https://hotelcostmx.somee.com/api/Habitaciones/EstadosActualizados'
         );
         this.habitaciones = res.data
           .filter((h) => h.estado_Actual.toLowerCase() === 'disponible')
@@ -213,7 +207,7 @@ export default {
     async cargarHabitacionesOcupadas() {
       try {
         const res = await axios.get(
-          'https://hotelcost.somee.com/api/Reservacion/OcupadasConCliente'
+          'https://hotelcostmx.somee.com/api/Reservacion/OcupadasConCliente'
         );
         this.habitacionesOcupadas = res.data;
       } catch (error) {
@@ -222,7 +216,7 @@ export default {
     },
     async cargarClientes() {
       try {
-        const res = await axios.get('https://hotelcost.somee.com/api/Clientes');
+        const res = await axios.get('https://hotelcostmx.somee.com/api/Clientes');
         const ocupadas = this.habitacionesOcupadas.map((r) =>
           r.nombreCliente?.toLowerCase()
         );
@@ -271,12 +265,12 @@ export default {
 
       axios
         .post(
-          'https://hotelcost.somee.com/api/Reservacion',
+          'https://hotelcostmx.somee.com/api/Reservacion',
           nuevaReserva
         )
         .then(() => {
           return axios.put(
-            'https://hotelcost.somee.com/api/Habitaciones/ActualizarEstado',
+            'https://hotelcostmx.somee.com/api/Habitaciones/ActualizarEstado',
             {
               Numero_Habitacion: this.habitacionSeleccionada.numero_Habitacion,
               Estado_Actual: 'Ocupada',
@@ -333,14 +327,14 @@ body,
 <style scoped>
 .reservas-main {
   background-color: #22cbc3 !important;
-  padding-top: 120px !important; /* Aumentamos este valor */
+  padding-top: 120px !important;
   min-height: calc(100vh - 80px);
 }
 
 
 .cards-wrapper {
   max-width: 1200px;
-  margin: 0 auto; /* Sin márgenes extra hacia abajo */
+  margin: 0 auto; 
 }
 
 .px-4 {
@@ -390,8 +384,6 @@ body,
   background-color: #e0a800 !important;
 }
 
-/* El botón REGRESAR está “colocado” con padding en el Contenedor de la AppBar,
-   así ya no se superpone con las tarjetas. */
 .back-button {
   margin-right: 16px;
 }
@@ -433,7 +425,6 @@ body,
   max-width: 50px;
 }
 
-/* Ajustes para pantallas pequeñas */
 @media (max-width: 600px) {
   .navbar-title {
     font-size: 1rem;

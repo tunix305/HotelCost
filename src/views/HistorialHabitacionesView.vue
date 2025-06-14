@@ -1,6 +1,5 @@
 <template>
   <v-app>
-    <!-- Encabezado -->
     <v-app-bar app color="#1a1a1a" dark>
       <v-container fluid class="d-flex align-center justify-space-between px-6">
         <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="60" />
@@ -11,7 +10,6 @@
       </v-container>
     </v-app-bar>
 
-    <!-- Tabla de historial -->
     <v-main class="historial-container">
       <v-container>
         <v-card elevation="8" class="pa-4">
@@ -144,7 +142,7 @@ const getEstadoColor = (estado) => {
 
 const cargarHistorial = async () => {
   try {
-    const res = await axios.get("https://www.hotelcost.somee.com/api/Habitaciones/HistorialCambios");
+    const res = await axios.get("https://hotelcostmx.somee.com/api/Habitaciones/HistorialCambios");
     historial.value = res.data
       .filter(item => 
         item.estado_Nuevo === 'Ocupada' || 
@@ -166,7 +164,6 @@ const cargarHistorial = async () => {
       .sort((a, b) => new Date(b.fecha_Cambio) - new Date(a.fecha_Cambio));
   } catch (err) {
     console.error('Error al cargar historial:', err);
-    // Opcional: mostrar notificación de error al usuario
   }
 };
 

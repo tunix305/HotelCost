@@ -1,6 +1,5 @@
 <template>
   <v-app>
-    <!-- Navbar -->
     <v-app-bar app color="#1a1a1a" dark height="100">
       <v-container fluid class="d-flex align-center justify-space-between px-6">
         <v-img src="@/assets/logotiopo.png" alt="Logo" max-width="60" contain />
@@ -11,12 +10,10 @@
       </v-container>
     </v-app-bar>
 
-    <!-- Contenido principal -->
     <v-main class="informes-fondo">
       <v-container fluid class="d-flex justify-center py-8">
         <v-card class="registro-card pa-6" elevation="12" max-width="1000">
 
-          <!-- Resumen General -->
           <div class="mb-8">
             <h2 class="white--text text-h6 font-weight-medium text-center mb-4">
               Resumen General
@@ -94,7 +91,6 @@
             </v-form>
           </div>
 
-          <!-- Informes Recientes -->
           <div>
             <h2 class="white--text text-h6 font-weight-medium text-center mb-4">
               Informes Recientes
@@ -174,7 +170,7 @@ const confirmarMes = () => { updateMonth(); monthDialog.value = false; };
 
 const loadResumenGeneral = async () => {
   try {
-    const { data } = await axios.get('https://www.hotelcost.somee.com/api/informes/resumen-general');
+    const { data } = await axios.get('https://hotelcostmx.somee.com/api/informes/resumen-general');
     ocupacionTotal.value     = data.porcentajeOcupacion;
     ingresosMensuales.value  = data.ingresosMensuales;
     rendimientoMensual.value = data.rendimiento;
@@ -183,7 +179,7 @@ const loadResumenGeneral = async () => {
 
 const loadReports = async () => {
   try {
-    const { data } = await axios.get('https://www.hotelcost.somee.com/api/informes');
+    const { data } = await axios.get('https://hotelcostmx.somee.com/api/informes');
     recentReports.value = data.map(r => ({
       ...r,
       generadoEl: new Date(r.generadoEl + 'T00:00:00').toLocaleDateString('es-ES'),
@@ -210,7 +206,7 @@ const generateReport = async () => {
   };
 
   try {
-    await axios.post('https://www.hotelcost.somee.com/api/informes', nuevo);
+    await axios.post('https://hotelcostmx.somee.com/api/informes', nuevo);
     await loadReports();
     Swal.fire({
       icon: 'success',
@@ -247,7 +243,7 @@ const deleteReport = async id => {
   if (!result.isConfirmed) return;
 
   try {
-    await axios.delete(`https://www.hotelcost.somee.com/api/informes/${id}`);
+    await axios.delete(`https://hotelcostmx.somee.com/api/informes/${id}`);
     await loadReports();
     Swal.fire({
       icon: 'success',
@@ -391,7 +387,6 @@ onMounted(() => {
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
-/* TABLA TRANSPARENTE */
 .transparent-table {
   background-color: transparent !important;
 }
@@ -401,7 +396,6 @@ onMounted(() => {
 .transparent-table .v-data-table-header {
   background-color: transparent !important;
 }
-/* LETRAS EN BLANCO */
 .transparent-table .v-data-table-header th,
 .transparent-table .v-data-table__wrapper td {
   color: white !important;
